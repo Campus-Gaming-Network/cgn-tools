@@ -1,6 +1,6 @@
 {
   "name": "@campus-gaming-network/tools",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.24",
     "@fortawesome/free-brands-svg-icons": "^5.11.2",
@@ -28,6 +28,7 @@
     "lodash.uniqby": "^4.7.0",
     "lodash.xorby": "^4.7.0",
     "luxon": "^1.25.0",
+    "md5": "^2.2.1",
     "prettier": "^1.19.1"
   },
   "main": "index.js",
