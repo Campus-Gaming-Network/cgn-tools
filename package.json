@@ -1,6 +1,6 @@
 {
   "name": "@campus-gaming-network/tools",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.24",
     "@fortawesome/free-brands-svg-icons": "^5.11.2",
