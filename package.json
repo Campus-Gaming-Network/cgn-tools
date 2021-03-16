@@ -21,7 +21,8 @@
     "lodash.uniqby": "^4.7.0",
     "lodash.xorby": "^4.7.0",
     "luxon": "^1.25.0",
-    "md5": "^2.2.1"
+    "md5": "^2.2.1",
+    "react": "latest"
   },
   "main": "index.js",
   "scripts": {},
