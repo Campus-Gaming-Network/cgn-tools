@@ -1,11 +1,8 @@
-// @ts-ignore
 import range from 'lodash.range';
-// @ts-ignore
 import capitalize from 'lodash.capitalize';
-// @ts-ignore
 import md5 from 'md5';
-// @ts-ignore
 // import startCase from "lodash.startcase";
+import Joi from "joi";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Firebase
@@ -279,3 +276,152 @@ export const classNames = (_classNames: string[] = []): string => {
     .join(' ')
     .trim();
 };
+
+////////////////////////////////////////////////////////////////////////////////
+// Validations
+
+export const BASE_STRING_MAX_LENGTH = 255;
+export const idSchema = Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required();
+export const refSchema = Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required();
+export const createdAtSchema = Joi.date().timestamp().allow('');
+export const updatedAtSchema = Joi.date().timestamp().allow('');
+export const userStatusSchema = Joi.array().items(Joi.string().valid(...STUDENT_STATUS_OPTIONS.map(o => o && o.value))).required();
+export const subEventSchema = Joi.object({
+  id: idSchema,
+  name: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required(),
+  responses: Joi.object({
+    yes: Joi.number().integer().positive().required(),
+    no: Joi.number().integer().positive().required(),
+  }),
+  description: Joi.string().alphanum().max(5000).allow(''),
+  isOnlineEvent: Joi.boolean(),
+  startDateTime: Joi.date().timestamp().allow(''),
+  endDateTime: Joi.date().timestamp().allow(''),
+  ref: refSchema,
+});
+export const subTeamSchema = Joi.object({
+  id: idSchema,
+  name: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required(),
+  shortName: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
+  ref: refSchema,
+});
+export const subSchoolSchema = Joi.object({
+  id: idSchema,
+  name: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required(),
+  ref: refSchema,
+});
+export const subUserSchema = Joi.object({
+  id: idSchema,
+  firstName: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required(),
+  lastName: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required(),
+  gravatar: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required(),
+  ref: refSchema,
+  status: userStatusSchema,
+  school: subSchoolSchema,
+});
+export const gameSchema = Joi.object({
+  id: idSchema,
+  name: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required(),
+  slug: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required(),
+  cover: Joi.object({
+    id: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
+    url: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
+  }),
+});
+export const userSchema = Joi.object({
+  id: idSchema,
+  firstName: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required(),
+  lastName: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required(),
+  status: userStatusSchema,
+  gravatar: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required(),
+  school: subSchoolSchema,
+  createdAt: createdAtSchema,
+  updatedAt: updatedAtSchema,
+  major: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
+  minor: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
+  bio: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
+  timezone: Joi.array().items(Joi.string().valid(...TIMEZONES.map(tz => tz && tz.value))).allow(''),
+  hometown: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
+  birthdate: Joi.date().timestamp().allow(''),
+  website: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
+  twitter: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
+  twitch: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
+  youtube: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
+  skype: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
+  discord: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
+  battlenet: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
+  steam: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
+  xbox: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
+  psn: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
+  currentlyPlaying: Joi.array().items(gameSchema).max(5).allow([]),
+  favoriteGames: Joi.array().items(gameSchema).max(5).allow([]),
+});
+export const schoolSchema = Joi.object({
+  id: idSchema,
+  name: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required(),
+  handle: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
+  email: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
+  city: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
+  country: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
+  county: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
+  address: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
+  state: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
+  geohash: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
+  website: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
+  phone: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
+  zip: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
+  location: Joi.object().allow(''),
+  createdAt: createdAtSchema,
+  updatedAt: updatedAtSchema,
+});
+export const eventSchema = Joi.object({
+  id: idSchema,
+  name: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required(),
+  creator: subUserSchema,
+  school: subSchoolSchema,
+  responses: Joi.object({
+    yes: Joi.number().integer().positive().required(),
+    no: Joi.number().integer().positive().required(),
+  }).required(),
+  description: Joi.string().alphanum().max(5000).allow(''),
+  isOnlineEvent: Joi.boolean(),
+  startDateTime: Joi.date().timestamp().allow(''),
+  endDateTime: Joi.date().timestamp().allow(''),
+  createdAt: createdAtSchema,
+  updatedAt: updatedAtSchema,
+});
+export const eventResponseSchema = Joi.object({
+  event: subEventSchema,
+  school: subSchoolSchema,
+  user: subUserSchema,
+  response: Joi.string().valid('YES', 'NO').required(),
+  createdAt: createdAtSchema,
+  updatedAt: updatedAtSchema,
+});
+export const teamSchema = Joi.object({
+  id: idSchema,
+  name: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required(),
+  shortName: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
+  website: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
+  description: Joi.string().alphanum().max(5000).allow(''),
+  memberCount: Joi.number().integer().positive().required(),
+  roles: Joi.object({
+    leader: Joi.object({ id: idSchema, ref: refSchema }).required(),
+    officer: Joi.object({ id: idSchema, ref: refSchema }),
+  }),
+  createdAt: createdAtSchema,
+  updatedAt: updatedAtSchema,
+});
+export const teammateSchema = Joi.object({
+  team: subTeamSchema,
+  user: subUserSchema,
+  createdAt: createdAtSchema,
+  updatedAt: updatedAtSchema,
+});
+export const validateCreateUser = (form: {}) => userSchema.validate(form);
+export const validateEditUser = (form: {}) => userSchema.validate(form);
+export const validateCreateEvent = (form: {}) => eventSchema.validate(form);
+export const validateEditEvent = (form: {}) => eventSchema.validate(form);
+export const validateEditSchool = (form: {}) => schoolSchema.validate(form);
+export const validateCreateTeam = (form: {}) => eventSchema.validate(form);
+export const validateEditTeam = (form: {}) => eventSchema.validate(form);
