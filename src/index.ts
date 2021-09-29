@@ -2,7 +2,7 @@ import range from 'lodash.range';
 import capitalize from 'lodash.capitalize';
 import md5 from 'md5';
 // import startCase from "lodash.startcase";
-import Joi from "joi";
+import Joi from 'joi';
 
 ////////////////////////////////////////////////////////////////////////////////
 // Firebase
@@ -168,6 +168,43 @@ export const getUserDisplayStatus = (status: string): string =>
 ////////////////////////////////////////////////////////////////////////////////
 // Other
 
+export const COOKIES = {
+  PATH: '/',
+  AUTH_TOKEN: process.env.NODE_ENV !== 'production' ? 'cgn_dev.auth_token' : 'cgn.auth_token',
+};
+export const LOCAL_STORAGE = {
+  SCHOOLS: process.env.NODE_ENV !== 'production' ? 'cgn_dev.schools' : 'cgn.schools',
+  SCHOOLS_QUERY: process.env.NODE_ENV !== 'production' ? 'cgn_dev.schools_query' : 'cgn.schools_query',
+  GEOLOCATION: 'cgn.geolocation',
+};
+export const CGN_TWITTER_HANDLE: string = '@CampusGamingNet';
+export const SITE_NAME: string = 'Campus Gaming Network';
+interface RedirectHome {
+  redirect: {
+    permanent: boolean;
+    destination: string;
+  };
+}
+export const REDIRECT_HOME: RedirectHome = {
+  redirect: {
+    permanent: false,
+    destination: '/',
+  },
+};
+interface NotFound {
+  notFound: boolean;
+}
+export const NOT_FOUND: NotFound = { notFound: true };
+// Source: https://dev.twitch.tv/docs/embed/everything
+export const TWITCH_EMBED_SCRIPT_URL: string = 'https://embed.twitch.tv/embed/v1.js';
+export const DISCORD_LINK: string = 'https://discord.gg/dpYU6TY';
+export const GITHUB_LINK: string = 'https://github.com/Campus-Gaming-Network/campus-gaming-network';
+export const FACEBOOK_LINK: string = 'https://www.facebook.com/campusgamingnetwork/';
+export const TWITTER_LINK: string = 'https://twitter.com/CampusGamingNet';
+export const INSTAGRAM_LINK: string = 'https://www.instagram.com/campusgamingnetwork/';
+export const SUPPORT_EMAIL: string = 'support@campusgamingnetwork.com';
+export const BUY_ME_A_COFFEE_LINK: string = 'https://www.buymeacoffee.com/cgnbrandon';
+export const BASE_ERROR_MESSAGE: string = `Please contact us at ${SUPPORT_EMAIL}, we are sorry for the inconvenience.`;
 export const PRODUCTION_URL: string = 'https://campusgamingnetwork.com/';
 export const DEFAULT_PAGE_SIZE: number = 25;
 export const DEFAULT_USERS_LIST_PAGE_SIZE: number = DEFAULT_PAGE_SIZE;
@@ -285,7 +322,9 @@ export const idSchema = Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).requ
 export const refSchema = Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required();
 export const createdAtSchema = Joi.date().timestamp().allow('');
 export const updatedAtSchema = Joi.date().timestamp().allow('');
-export const userStatusSchema = Joi.array().items(Joi.string().valid(...STUDENT_STATUS_OPTIONS.map(o => o && o.value))).required();
+export const userStatusSchema = Joi.array()
+  .items(Joi.string().valid(...STUDENT_STATUS_OPTIONS.map((o) => o && o.value)))
+  .required();
 export const subEventSchema = Joi.object({
   id: idSchema,
   name: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required(),
@@ -340,7 +379,9 @@ export const userSchema = Joi.object({
   major: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
   minor: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
   bio: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
-  timezone: Joi.array().items(Joi.string().valid(...TIMEZONES.map(tz => tz && tz.value))).allow(''),
+  timezone: Joi.array()
+    .items(Joi.string().valid(...TIMEZONES.map((tz) => tz && tz.value)))
+    .allow(''),
   hometown: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
   birthdate: Joi.date().timestamp().allow(''),
   website: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
