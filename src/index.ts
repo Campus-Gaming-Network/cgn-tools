@@ -394,8 +394,8 @@ export const userSchema = Joi.object({
   steam: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
   xbox: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
   psn: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).allow(''),
-  currentlyPlaying: Joi.array().items(gameSchema).max(5).allow([]),
-  favoriteGames: Joi.array().items(gameSchema).max(5).allow([]),
+  currentlyPlaying: Joi.array().items(gameSchema).max(5).allow(),
+  favoriteGames: Joi.array().items(gameSchema).max(5).allow(),
 });
 export const schoolSchema = Joi.object({
   id: idSchema,
