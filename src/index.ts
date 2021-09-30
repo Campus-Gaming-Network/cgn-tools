@@ -322,9 +322,11 @@ export const idSchema = Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).requ
 export const refSchema = Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required();
 export const createdAtSchema = Joi.date().timestamp().allow('');
 export const updatedAtSchema = Joi.date().timestamp().allow('');
-export const userStatusSchema = Joi.array()
-  .items(Joi.string().valid(...STUDENT_STATUS_OPTIONS.map((o) => o && o.value)))
-  .required();
+export const emailSchema = Joi.string().email();
+export const passwordSchema = Joi.string().alphanum().min(MIN_PASSWORD_LENGTH);
+export const userStatusSchema = Joi.array().items(
+  Joi.string().valid(...STUDENT_STATUS_OPTIONS.map((o) => o && o.value)),
+);
 export const subEventSchema = Joi.object({
   id: idSchema,
   name: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required(),
@@ -355,7 +357,7 @@ export const subUserSchema = Joi.object({
   lastName: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required(),
   gravatar: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required(),
   ref: refSchema,
-  status: userStatusSchema,
+  status: userStatusSchema.required(),
   school: subSchoolSchema,
 });
 export const gameSchema = Joi.object({
@@ -371,7 +373,7 @@ export const userSchema = Joi.object({
   id: idSchema,
   firstName: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required(),
   lastName: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required(),
-  status: userStatusSchema,
+  status: userStatusSchema.required(),
   gravatar: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required(),
   school: subSchoolSchema,
   createdAt: createdAtSchema,
@@ -459,6 +461,24 @@ export const teammateSchema = Joi.object({
   createdAt: createdAtSchema,
   updatedAt: updatedAtSchema,
 });
+export const signUpSchema = Joi.object({
+  firstName: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required(),
+  lastName: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required(),
+  email: emailSchema.required(),
+  password: passwordSchema.required(),
+  school: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required(),
+  status: userStatusSchema.required(),
+});
+export const logInSchema = Joi.object({
+  email: emailSchema.required(),
+  password: passwordSchema.required(),
+});
+export const forgotPasswordSchema = Joi.object({
+  email: emailSchema.required(),
+});
+export const passwordResetSchema = Joi.object({
+  password: passwordSchema.required(),
+});
 export const validateCreateUser = (form: {}) => userSchema.validate(form);
 export const validateEditUser = (form: {}) => userSchema.validate(form);
 export const validateCreateEvent = (form: {}) => eventSchema.validate(form);
@@ -466,3 +486,7 @@ export const validateEditEvent = (form: {}) => eventSchema.validate(form);
 export const validateEditSchool = (form: {}) => schoolSchema.validate(form);
 export const validateCreateTeam = (form: {}) => eventSchema.validate(form);
 export const validateEditTeam = (form: {}) => eventSchema.validate(form);
+export const validateSignUp = (form: {}) => signUpSchema.validate(form);
+export const validateLogIn = (form: {}) => logInSchema.validate(form);
+export const validateForgotPassword = (form: {}) => forgotPasswordSchema.validate(form);
+export const validatePasswordReset = (form: {}) => passwordResetSchema.validate(form);
