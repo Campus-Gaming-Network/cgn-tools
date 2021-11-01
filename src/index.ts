@@ -3,6 +3,8 @@ import capitalize from 'lodash.capitalize';
 import md5 from 'md5';
 // import startCase from "lodash.startcase";
 import Joi from 'joi';
+import bcrypt from "bcrypt";
+import { customAlphabet } from "nanoid";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Firebase
@@ -13,6 +15,13 @@ enum FirebaseCollection {
   Events = 'events',
   Event_Responses = 'event-responses',
   Game_Queries = 'game-queries',
+  Configs ="configs",
+  Reports = "reports",
+  Teams = "teams",
+  Teams_Auth = "teams-auth",
+  Teammates = "teammates",
+  Tournaments = "tournaments",
+  Tournament_User = "tournament-user",
 }
 interface FirebaseCollections {
   SCHOOLS: FirebaseCollection.Schools;
@@ -20,6 +29,13 @@ interface FirebaseCollections {
   EVENTS: FirebaseCollection.Events;
   EVENT_RESPONSES: FirebaseCollection.Event_Responses;
   GAME_QUERIES: FirebaseCollection.Game_Queries;
+  CONFIGS: FirebaseCollection.Configs,
+  REPORTS: FirebaseCollection.Reports,
+  TEAMS: FirebaseCollection.Teams,
+  TEAMS_AUTH: FirebaseCollection.Teams_Auth,
+  TEAMMATES: FirebaseCollection.Teammates,
+  TOURNAMENTS: FirebaseCollection.Tournaments,
+  TOURNAMENT_USER: FirebaseCollection.Tournament_User,
 }
 export const COLLECTIONS: FirebaseCollections = {
   SCHOOLS: FirebaseCollection.Schools,
@@ -27,6 +43,83 @@ export const COLLECTIONS: FirebaseCollections = {
   EVENTS: FirebaseCollection.Events,
   EVENT_RESPONSES: FirebaseCollection.Event_Responses,
   GAME_QUERIES: FirebaseCollection.Game_Queries,
+  CONFIGS: FirebaseCollection.Configs,
+  REPORTS: FirebaseCollection.Reports,
+  TEAMS: FirebaseCollection.Teams,
+  TEAMS_AUTH: FirebaseCollection.Teams_Auth,
+  TEAMMATES: FirebaseCollection.Teammates,
+  TOURNAMENTS: FirebaseCollection.Tournaments,
+  TOURNAMENT_USER: FirebaseCollection.Tournament_User,
+};
+enum FirebaseCallable {
+  Search_Games = "searchGames",
+  Search_Schools = "searchSchools",
+  Report_Entity = "reportEntity",
+  Create_Team = "createTeam",
+  Join_Team = "joinTeam",
+  Edit_Team = "editTeam",
+  Leave_Team = "leaveTeam",
+  Kick_Teammate = "kickTeammate",
+  Promote_Teammate = "promoteTeammate",
+  Demote_Teammate = "demoteTeammate",
+  Create_Tournament = "createTournament",
+}
+interface FirebaseCallables {
+  SEARCH_GAMES: FirebaseCallable.Search_Games,
+  SEARCH_SCHOOLS: FirebaseCallable.Search_Schools,
+  REPORT_ENTITY: FirebaseCallable.Report_Entity,
+  CREATE_TEAM: FirebaseCallable.Create_Team,
+  JOIN_TEAM: FirebaseCallable.Join_Team,
+  EDIT_TEAM: FirebaseCallable.Edit_Team,
+  LEAVE_TEAM: FirebaseCallable.Leave_Team,
+  KICK_TEAMMATE: FirebaseCallable.Kick_Teammate,
+  PROMOTE_TEAMMATE: FirebaseCallable.Promote_Teammate,
+  DEMOTE_TEAMMATE: FirebaseCallable.Demote_Teammate,
+  CREATE_TOURNAMENT: FirebaseCallable.Create_Tournament,
+}
+export const CALLABLES: FirebaseCallables = {
+  SEARCH_GAMES: FirebaseCallable.Search_Games,
+  SEARCH_SCHOOLS: FirebaseCallable.Search_Schools,
+  REPORT_ENTITY: FirebaseCallable.Report_Entity,
+  CREATE_TEAM: FirebaseCallable.Create_Team,
+  JOIN_TEAM: FirebaseCallable.Join_Team,
+  EDIT_TEAM: FirebaseCallable.Edit_Team,
+  LEAVE_TEAM: FirebaseCallable.Leave_Team,
+  KICK_TEAMMATE: FirebaseCallable.Kick_Teammate,
+  PROMOTE_TEAMMATE: FirebaseCallable.Promote_Teammate,
+  DEMOTE_TEAMMATE: FirebaseCallable.Demote_Teammate,
+  CREATE_TOURNAMENT: FirebaseCallable.Create_Tournament,
+};
+enum FirebaseAuthAction {
+  Verify_Email = "verifyEmail",
+  Reset_Password = "resetPassword",
+};
+interface FirebaseAuthActions {
+  VERIFY_EMAIL: FirebaseAuthAction.Verify_Email,
+  RESET_PASSWORD: FirebaseAuthAction.Reset_Password,
+};
+export const AUTH_ACTION: FirebaseAuthActions = {
+  VERIFY_EMAIL: FirebaseAuthAction.Verify_Email,
+  RESET_PASSWORD: FirebaseAuthAction.Reset_Password,
+};
+type DocumentPath = `${string}/{${string}Id}`;
+interface DocumentPaths {
+  USER: DocumentPath,
+  SCHOOL: DocumentPath,
+  EVENT_RESPONSES: DocumentPath,
+  TEAM: DocumentPath,
+  TEAMMATES: DocumentPath,
+  TOURNAMENTS: DocumentPath,
+  TOURNAMENT_USER: DocumentPath,
+}
+export const DOCUMENT_PATHS: DocumentPaths = {
+  USER: "users/{userId}",
+  SCHOOL: "schools/{schoolId}",
+  EVENT_RESPONSES: "event-responses/{eventResponseId}",
+  TEAM: "teams/{teamId}",
+  TEAMMATES: "teammates/{teammatesId}",
+  TOURNAMENTS: "tournaments/{tournamentId}",
+  TOURNAMENT_USER: "tournament-user/{tournamentUserId}",
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -93,6 +186,8 @@ interface User {
   psn: string;
   currentlyPlaying: [];
   favoriteGames: [];
+  createdAt?: Date | null;
+  updatedAt?: Date | null;
 }
 export const BASE_USER: User = {
   id: '',
@@ -121,6 +216,8 @@ export const BASE_USER: User = {
   psn: '',
   currentlyPlaying: [],
   favoriteGames: [],
+  createdAt: null,
+  updatedAt: null,
 };
 interface StudentStatusOption {
   value: string;
@@ -164,6 +261,18 @@ export const createGravatarRequestUrl = (hash: string = '', email: string = ''):
 };
 export const getUserDisplayStatus = (status: string): string =>
   ({ ALUMNI: 'Alumni of ', GRAD: 'Graduate Student at ' }[status] || `${capitalize(status)} at `);
+
+////////////////////////////////////////////////////////////////////////////////
+// Team
+
+interface TeamRoleTypes {
+  LEADER: string,
+  OFFICER: string,
+}
+export const TEAM_ROLE_TYPES: TeamRoleTypes = {
+  LEADER: "leader",
+  OFFICER: "officer",
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 // Other
@@ -230,6 +339,7 @@ interface SocialAccount {
 }
 export const isValidUrl = (url: string): boolean =>
   Boolean(url) && (url.startsWith('http://') || url.startsWith('https://'));
+export const isValidEmail = (email: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 export const googleMapsLink = (query: string): string => {
   if (!query) {
     return '';
@@ -256,6 +366,41 @@ export const move = (array: any[], from: number, to: number): any[] => {
 
   return newArray;
 };
+export const shallowEqual = (object1: {[key: string] : unknown}, object2: {[key: string] : unknown}): boolean => {
+  const keys1 = Object.keys(object1);
+  const keys2 = Object.keys(object2);
+
+  if (keys1.length !== keys2.length) {
+    return false;
+  }
+
+  for (let key of keys1) {
+    if (object1[key] !== object2[key]) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// Challonge
+
+export const CHALLONGE_API_URL: string = "https://api.challonge.com/v1/";
+
+////////////////////////////////////////////////////////////////////////////////
+// Nanoid
+
+export const NANO_ALPHABET: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+export const NANO_ID_LENGTH: number = 10;
+export const nanoid = customAlphabet(NANO_ALPHABET, NANO_ID_LENGTH);
+
+////////////////////////////////////////////////////////////////////////////////
+// Bcrypt
+
+export const SALT_ROUNDS: number = 10;
+export const hashPassword = async (password: string): Promise<string> => await bcrypt.hash(password, SALT_ROUNDS);
+export const comparePasswords = async (password: string, hash: string): Promise<boolean> => await bcrypt.compare(password, hash);
 
 ////////////////////////////////////////////////////////////////////////////////
 // DateTime
@@ -317,6 +462,10 @@ export const classNames = (_classNames: string[] = []): string => {
 ////////////////////////////////////////////////////////////////////////////////
 // Validations
 
+export const validateOptions = {
+  abortEarly: false,
+  debug: process.env.NODE_ENV !== 'production',
+};
 export const BASE_STRING_MAX_LENGTH = 255;
 export const idSchema = Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required();
 export const refSchema = Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required();
@@ -479,14 +628,14 @@ export const forgotPasswordSchema = Joi.object({
 export const passwordResetSchema = Joi.object({
   password: passwordSchema.required(),
 });
-export const validateCreateUser = (form: {}) => userSchema.validate(form);
-export const validateEditUser = (form: {}) => userSchema.validate(form);
-export const validateCreateEvent = (form: {}) => eventSchema.validate(form);
-export const validateEditEvent = (form: {}) => eventSchema.validate(form);
-export const validateEditSchool = (form: {}) => schoolSchema.validate(form);
-export const validateCreateTeam = (form: {}) => eventSchema.validate(form);
-export const validateEditTeam = (form: {}) => eventSchema.validate(form);
-export const validateSignUp = (form: {}) => signUpSchema.validate(form);
-export const validateLogIn = (form: {}) => logInSchema.validate(form);
-export const validateForgotPassword = (form: {}) => forgotPasswordSchema.validate(form);
-export const validatePasswordReset = (form: {}) => passwordResetSchema.validate(form);
+export const validateCreateUser = (form: {}) => userSchema.validate(form, validateOptions);
+export const validateEditUser = (form: {}) => userSchema.validate(form, validateOptions);
+export const validateCreateEvent = (form: {}) => eventSchema.validate(form, validateOptions);
+export const validateEditEvent = (form: {}) => eventSchema.validate(form, validateOptions);
+export const validateEditSchool = (form: {}) => schoolSchema.validate(form, validateOptions);
+export const validateCreateTeam = (form: {}) => eventSchema.validate(form, validateOptions);
+export const validateEditTeam = (form: {}) => eventSchema.validate(form, validateOptions);
+export const validateSignUp = (form: {}) => signUpSchema.validate(form, validateOptions);
+export const validateLogIn = (form: {}) => logInSchema.validate(form, validateOptions);
+export const validateForgotPassword = (form: {}) => forgotPasswordSchema.validate(form, validateOptions);
+export const validatePasswordReset = (form: {}) => passwordResetSchema.validate(form, validateOptions);
