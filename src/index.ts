@@ -3,8 +3,8 @@ import capitalize from 'lodash.capitalize';
 import md5 from 'md5';
 // import startCase from "lodash.startcase";
 import Joi from 'joi';
-import bcrypt from "bcrypt";
-import { customAlphabet } from "nanoid";
+import bcrypt from 'bcrypt';
+import { customAlphabet } from 'nanoid';
 
 ////////////////////////////////////////////////////////////////////////////////
 // Firebase
@@ -15,13 +15,13 @@ enum FirebaseCollection {
   Events = 'events',
   Event_Responses = 'event-responses',
   Game_Queries = 'game-queries',
-  Configs ="configs",
-  Reports = "reports",
-  Teams = "teams",
-  Teams_Auth = "teams-auth",
-  Teammates = "teammates",
-  Tournaments = "tournaments",
-  Tournament_User = "tournament-user",
+  Configs = 'configs',
+  Reports = 'reports',
+  Teams = 'teams',
+  Teams_Auth = 'teams-auth',
+  Teammates = 'teammates',
+  Tournaments = 'tournaments',
+  Tournament_User = 'tournament-user',
 }
 interface FirebaseCollections {
   SCHOOLS: FirebaseCollection.Schools;
@@ -29,13 +29,13 @@ interface FirebaseCollections {
   EVENTS: FirebaseCollection.Events;
   EVENT_RESPONSES: FirebaseCollection.Event_Responses;
   GAME_QUERIES: FirebaseCollection.Game_Queries;
-  CONFIGS: FirebaseCollection.Configs,
-  REPORTS: FirebaseCollection.Reports,
-  TEAMS: FirebaseCollection.Teams,
-  TEAMS_AUTH: FirebaseCollection.Teams_Auth,
-  TEAMMATES: FirebaseCollection.Teammates,
-  TOURNAMENTS: FirebaseCollection.Tournaments,
-  TOURNAMENT_USER: FirebaseCollection.Tournament_User,
+  CONFIGS: FirebaseCollection.Configs;
+  REPORTS: FirebaseCollection.Reports;
+  TEAMS: FirebaseCollection.Teams;
+  TEAMS_AUTH: FirebaseCollection.Teams_Auth;
+  TEAMMATES: FirebaseCollection.Teammates;
+  TOURNAMENTS: FirebaseCollection.Tournaments;
+  TOURNAMENT_USER: FirebaseCollection.Tournament_User;
 }
 export const COLLECTIONS: FirebaseCollections = {
   SCHOOLS: FirebaseCollection.Schools,
@@ -52,30 +52,30 @@ export const COLLECTIONS: FirebaseCollections = {
   TOURNAMENT_USER: FirebaseCollection.Tournament_User,
 };
 enum FirebaseCallable {
-  Search_Games = "searchGames",
-  Search_Schools = "searchSchools",
-  Report_Entity = "reportEntity",
-  Create_Team = "createTeam",
-  Join_Team = "joinTeam",
-  Edit_Team = "editTeam",
-  Leave_Team = "leaveTeam",
-  Kick_Teammate = "kickTeammate",
-  Promote_Teammate = "promoteTeammate",
-  Demote_Teammate = "demoteTeammate",
-  Create_Tournament = "createTournament",
+  Search_Games = 'searchGames',
+  Search_Schools = 'searchSchools',
+  Report_Entity = 'reportEntity',
+  Create_Team = 'createTeam',
+  Join_Team = 'joinTeam',
+  Edit_Team = 'editTeam',
+  Leave_Team = 'leaveTeam',
+  Kick_Teammate = 'kickTeammate',
+  Promote_Teammate = 'promoteTeammate',
+  Demote_Teammate = 'demoteTeammate',
+  Create_Tournament = 'createTournament',
 }
 interface FirebaseCallables {
-  SEARCH_GAMES: FirebaseCallable.Search_Games,
-  SEARCH_SCHOOLS: FirebaseCallable.Search_Schools,
-  REPORT_ENTITY: FirebaseCallable.Report_Entity,
-  CREATE_TEAM: FirebaseCallable.Create_Team,
-  JOIN_TEAM: FirebaseCallable.Join_Team,
-  EDIT_TEAM: FirebaseCallable.Edit_Team,
-  LEAVE_TEAM: FirebaseCallable.Leave_Team,
-  KICK_TEAMMATE: FirebaseCallable.Kick_Teammate,
-  PROMOTE_TEAMMATE: FirebaseCallable.Promote_Teammate,
-  DEMOTE_TEAMMATE: FirebaseCallable.Demote_Teammate,
-  CREATE_TOURNAMENT: FirebaseCallable.Create_Tournament,
+  SEARCH_GAMES: FirebaseCallable.Search_Games;
+  SEARCH_SCHOOLS: FirebaseCallable.Search_Schools;
+  REPORT_ENTITY: FirebaseCallable.Report_Entity;
+  CREATE_TEAM: FirebaseCallable.Create_Team;
+  JOIN_TEAM: FirebaseCallable.Join_Team;
+  EDIT_TEAM: FirebaseCallable.Edit_Team;
+  LEAVE_TEAM: FirebaseCallable.Leave_Team;
+  KICK_TEAMMATE: FirebaseCallable.Kick_Teammate;
+  PROMOTE_TEAMMATE: FirebaseCallable.Promote_Teammate;
+  DEMOTE_TEAMMATE: FirebaseCallable.Demote_Teammate;
+  CREATE_TOURNAMENT: FirebaseCallable.Create_Tournament;
 }
 export const CALLABLES: FirebaseCallables = {
   SEARCH_GAMES: FirebaseCallable.Search_Games,
@@ -91,35 +91,35 @@ export const CALLABLES: FirebaseCallables = {
   CREATE_TOURNAMENT: FirebaseCallable.Create_Tournament,
 };
 enum FirebaseAuthAction {
-  Verify_Email = "verifyEmail",
-  Reset_Password = "resetPassword",
-};
+  Verify_Email = 'verifyEmail',
+  Reset_Password = 'resetPassword',
+}
 interface FirebaseAuthActions {
-  VERIFY_EMAIL: FirebaseAuthAction.Verify_Email,
-  RESET_PASSWORD: FirebaseAuthAction.Reset_Password,
-};
+  VERIFY_EMAIL: FirebaseAuthAction.Verify_Email;
+  RESET_PASSWORD: FirebaseAuthAction.Reset_Password;
+}
 export const AUTH_ACTION: FirebaseAuthActions = {
   VERIFY_EMAIL: FirebaseAuthAction.Verify_Email,
   RESET_PASSWORD: FirebaseAuthAction.Reset_Password,
 };
 type DocumentPath = `${string}/{${string}Id}`;
 interface DocumentPaths {
-  USER: DocumentPath,
-  SCHOOL: DocumentPath,
-  EVENT_RESPONSES: DocumentPath,
-  TEAM: DocumentPath,
-  TEAMMATES: DocumentPath,
-  TOURNAMENTS: DocumentPath,
-  TOURNAMENT_USER: DocumentPath,
+  USER: DocumentPath;
+  SCHOOL: DocumentPath;
+  EVENT_RESPONSES: DocumentPath;
+  TEAM: DocumentPath;
+  TEAMMATES: DocumentPath;
+  TOURNAMENTS: DocumentPath;
+  TOURNAMENT_USER: DocumentPath;
 }
 export const DOCUMENT_PATHS: DocumentPaths = {
-  USER: "users/{userId}",
-  SCHOOL: "schools/{schoolId}",
-  EVENT_RESPONSES: "event-responses/{eventResponseId}",
-  TEAM: "teams/{teamId}",
-  TEAMMATES: "teammates/{teammatesId}",
-  TOURNAMENTS: "tournaments/{tournamentId}",
-  TOURNAMENT_USER: "tournament-user/{tournamentUserId}",
+  USER: 'users/{userId}',
+  SCHOOL: 'schools/{schoolId}',
+  EVENT_RESPONSES: 'event-responses/{eventResponseId}',
+  TEAM: 'teams/{teamId}',
+  TEAMMATES: 'teammates/{teammatesId}',
+  TOURNAMENTS: 'tournaments/{tournamentId}',
+  TOURNAMENT_USER: 'tournament-user/{tournamentUserId}',
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -266,12 +266,12 @@ export const getUserDisplayStatus = (status: string): string =>
 // Team
 
 interface TeamRoleTypes {
-  LEADER: string,
-  OFFICER: string,
+  LEADER: string;
+  OFFICER: string;
 }
 export const TEAM_ROLE_TYPES: TeamRoleTypes = {
-  LEADER: "leader",
-  OFFICER: "officer",
+  LEADER: 'leader',
+  OFFICER: 'officer',
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -366,7 +366,7 @@ export const move = (array: any[], from: number, to: number): any[] => {
 
   return newArray;
 };
-export const shallowEqual = (object1: {[key: string] : unknown}, object2: {[key: string] : unknown}): boolean => {
+export const shallowEqual = (object1: { [key: string]: unknown }, object2: { [key: string]: unknown }): boolean => {
   const keys1 = Object.keys(object1);
   const keys2 = Object.keys(object2);
 
@@ -374,7 +374,7 @@ export const shallowEqual = (object1: {[key: string] : unknown}, object2: {[key:
     return false;
   }
 
-  for (let key of keys1) {
+  for (const key of keys1) {
     if (object1[key] !== object2[key]) {
       return false;
     }
@@ -386,7 +386,7 @@ export const shallowEqual = (object1: {[key: string] : unknown}, object2: {[key:
 ////////////////////////////////////////////////////////////////////////////////
 // Challonge
 
-export const CHALLONGE_API_URL: string = "https://api.challonge.com/v1/";
+export const CHALLONGE_API_URL: string = 'https://api.challonge.com/v1/';
 
 ////////////////////////////////////////////////////////////////////////////////
 // Nanoid
@@ -400,7 +400,8 @@ export const nanoid = customAlphabet(NANO_ALPHABET, NANO_ID_LENGTH);
 
 export const SALT_ROUNDS: number = 10;
 export const hashPassword = async (password: string): Promise<string> => await bcrypt.hash(password, SALT_ROUNDS);
-export const comparePasswords = async (password: string, hash: string): Promise<boolean> => await bcrypt.compare(password, hash);
+export const comparePasswords = async (password: string, hash: string): Promise<boolean> =>
+  await bcrypt.compare(password, hash);
 
 ////////////////////////////////////////////////////////////////////////////////
 // DateTime
