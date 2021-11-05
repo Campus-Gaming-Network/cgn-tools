@@ -3,7 +3,6 @@ import capitalize from 'lodash.capitalize';
 import md5 from 'md5';
 // import startCase from "lodash.startcase";
 import Joi from 'joi';
-import bcrypt from 'bcrypt';
 import { customAlphabet } from 'nanoid';
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -394,14 +393,6 @@ export const CHALLONGE_API_URL: string = 'https://api.challonge.com/v1/';
 export const NANO_ALPHABET: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 export const NANO_ID_LENGTH: number = 10;
 export const nanoid = customAlphabet(NANO_ALPHABET, NANO_ID_LENGTH);
-
-////////////////////////////////////////////////////////////////////////////////
-// Bcrypt
-
-export const SALT_ROUNDS: number = 10;
-export const hashPassword = async (password: string): Promise<string> => await bcrypt.hash(password, SALT_ROUNDS);
-export const comparePasswords = async (password: string, hash: string): Promise<boolean> =>
-  await bcrypt.compare(password, hash);
 
 ////////////////////////////////////////////////////////////////////////////////
 // DateTime

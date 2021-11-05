@@ -31,7 +31,6 @@
   },
   "homepage": "https://github.com/Campus-Gaming-Network/cgn-tools#readme",
   "devDependencies": {
-    "@types/bcrypt": "^5.0.0",
     "@types/joi": "^17.2.3",
     "@types/lodash": "^4.14.173",
     "@types/lodash.capitalize": "^4.2.6",
@@ -44,7 +43,6 @@
     "tslint-config-prettier": "^1.18.0"
   },
   "dependencies": {
-    "bcrypt": "^5.0.1",
     "joi": "^17.4.2",
     "lodash.capitalize": "^4.2.1",
     "lodash.range": "^3.2.0",
