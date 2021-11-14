@@ -1,9 +1,12 @@
 import range from 'lodash.range';
 import capitalize from 'lodash.capitalize';
 import md5 from 'md5';
-// import startCase from "lodash.startcase";
+import startCase from 'lodash.startcase';
 import Joi from 'joi';
 import { customAlphabet } from 'nanoid';
+import Filter from 'bad-words';
+import { DateTime, Interval } from 'luxon';
+import { Timestamp as FirestoreTimestamp, GeoPoint as FirestoreGeoPoint } from '@firebase/firestore-types';
 
 ////////////////////////////////////////////////////////////////////////////////
 // Firebase
@@ -120,6 +123,7 @@ export const DOCUMENT_PATHS: DocumentPaths = {
   TOURNAMENTS: 'tournaments/{tournamentId}',
   TOURNAMENT_USER: 'tournament-user/{tournamentUserId}',
 };
+type FirestoreRef = string | object;
 
 ////////////////////////////////////////////////////////////////////////////////
 // IGDB
@@ -129,6 +133,30 @@ export const IGDB_GAME_URL: string = 'https://www.igdb.com/games';
 ////////////////////////////////////////////////////////////////////////////////
 // School
 
+interface FirestoreSchoolDoc {
+  id: string;
+  name: string;
+  handle: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  county?: string;
+  zip?: string;
+  geohash?: string;
+  phone?: string;
+  website?: string;
+  location?: FirestoreGeoPoint;
+  createdAt?: FirestoreTimestamp;
+  updatedAt?: FirestoreTimestamp;
+}
+interface FirestoreSchoolSubDoc {
+  id: string;
+  name: string;
+  ref: FirestoreRef;
+  createdAt?: FirestoreTimestamp;
+  updatedAt?: FirestoreTimestamp;
+}
 export const SCHOOL_EMPTY_UPCOMING_EVENTS_TEXT: string = 'This school currently has no upcoming events.';
 export const SCHOOL_EMPTY_USERS_TEXT: string = 'This school currently has no users.';
 enum SchoolAccount {
@@ -148,26 +176,73 @@ export const ALLOWED_SCHOOL_ACCOUNTS: SchoolAccount[] = [
   SchoolAccount.Discord,
 ];
 export const EMPTY_SCHOOL_WEBSITE: string = 'NOT AVAILABLE';
-export const getSchoolLogoPath = (schoolId: string | number, extension: string = 'png'): string =>
-  `schools/${schoolId}/images/logo.${extension}`;
-export const getSchoolLogoUrl = (schoolId: string | number, extension: string = 'png'): string =>
-  `https://firebasestorage.googleapis.com/v0/b/${
+export const getSchoolLogoPath = (schoolId: string | number, extension: string = 'png'): string => {
+  return `schools/${schoolId}/images/logo.${extension}`;
+};
+export const getSchoolLogoUrl = (schoolId: string | number, extension: string = 'png'): string => {
+  return `https://firebasestorage.googleapis.com/v0/b/${
     process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
   }/o/${encodeURIComponent(getSchoolLogoPath(schoolId, extension))}?alt=media&token=${schoolId}`;
+};
+export const formatSchoolName = (schoolName: string): string => {
+  return startCase(schoolName.toLowerCase());
+};
+export const getSchoolUrl = (schoolId: string): string => {
+  return `${PRODUCTION_URL}/school/${schoolId}`;
+};
+export const mapSchool = (school: FirestoreSchoolDoc): object | undefined => {
+  if (!Boolean(school)) {
+    return undefined;
+  }
+
+  const formattedName = formatSchoolName(school.name);
+  const url = getSchoolUrl(school.id);
+
+  return cleanObjectOfBadWords({
+    ...school,
+    createdAt: school.createdAt?.toDate(),
+    updatedAt: school.updatedAt?.toDate(),
+    formattedName,
+    formattedAddress: startCase(school.address ? school.address.toLowerCase() : ''),
+    isValidWebsiteUrl: isValidUrl(school.website || ''),
+    googleMapsAddressLink:
+      Boolean(school.address) && Boolean(school.city) && Boolean(school.state)
+        ? googleMapsLink(`${school.address} ${school.city}, ${school.state}`)
+        : undefined,
+    url,
+    meta: {
+      title: formattedName,
+      og: {
+        url,
+      },
+    },
+  });
+};
+export const mapSubSchool = (school: FirestoreSchoolSubDoc): object | undefined => {
+  if (!Boolean(school)) {
+    return undefined;
+  }
+
+  const formattedName = formatSchoolName(school.name);
+  const url = getSchoolUrl(school.id);
+
+  return cleanObjectOfBadWords({
+    ...school,
+    formattedName,
+    url,
+  });
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 // User
 
-interface User {
+interface FirestoreUserDoc {
   id: string;
   firstName: string;
   lastName: string;
   status: string;
   gravatar: string;
-  school: {
-    ref: string;
-    id: string;
-  };
+  school: FirestoreSchoolSubDoc;
   major: string;
   minor: string;
   bio: string;
@@ -185,39 +260,20 @@ interface User {
   psn: string;
   currentlyPlaying: [];
   favoriteGames: [];
-  createdAt?: Date | null;
-  updatedAt?: Date | null;
+  createdAt?: FirestoreTimestamp;
+  updatedAt?: FirestoreTimestamp;
 }
-export const BASE_USER: User = {
-  id: '',
-  firstName: '',
-  lastName: '',
-  status: '',
-  gravatar: '',
-  school: {
-    ref: '',
-    id: '',
-  },
-  major: '',
-  minor: '',
-  bio: '',
-  timezone: '',
-  hometown: '',
-  birthdate: '',
-  twitter: '',
-  twitch: '',
-  youtube: '',
-  skype: '',
-  discord: '',
-  battlenet: '',
-  steam: '',
-  xbox: '',
-  psn: '',
-  currentlyPlaying: [],
-  favoriteGames: [],
-  createdAt: null,
-  updatedAt: null,
-};
+interface FirestoreUserSubDoc {
+  id: string;
+  firstName: string;
+  lastName: string;
+  status: string;
+  gravatar: string;
+  ref: FirestoreRef;
+  school: FirestoreSchoolSubDoc;
+  createdAt?: FirestoreTimestamp;
+  updatedAt?: FirestoreTimestamp;
+}
 interface StudentStatusOption {
   value: string;
   label: string;
@@ -264,6 +320,31 @@ export const getUserDisplayStatus = (status: string): string =>
 ////////////////////////////////////////////////////////////////////////////////
 // Team
 
+interface FirestoreTeamDoc {
+  id: string;
+  name: string;
+  shortName: string;
+  website: string;
+  description: string;
+  memberCount: number;
+  roles: FirestoreTeamRoles;
+  createdAt?: FirestoreTimestamp;
+  updatedAt?: FirestoreTimestamp;
+}
+interface FirestoreTeamRoles {
+  leader: FirestoreTeamRole;
+  officer?: FirestoreTeamRole;
+}
+interface FirestoreTeamRole {
+  id: string;
+  ref: FirestoreRef;
+}
+interface FirestoreTeamSubDoc {
+  id: string;
+  name: string;
+  shortName: string;
+  ref: FirestoreRef;
+}
 interface TeamRoleTypes {
   LEADER: string;
   OFFICER: string;
@@ -272,6 +353,64 @@ export const TEAM_ROLE_TYPES: TeamRoleTypes = {
   LEADER: 'leader',
   OFFICER: 'officer',
 };
+
+////////////////////////////////////////////////////////////////////////////////
+// Teammate
+
+interface FirestoreTeammateDoc {
+  user: FirestoreUserSubDoc;
+  team: FirestoreTeamSubDoc;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Role
+
+interface FirestoreRoleDoc {
+  id: string;
+  name: string;
+  permissions: [];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// User Role
+
+interface FirestoreUserRoleDoc {
+  role: {
+    id: string;
+    ref: FirestoreRef;
+  };
+  team: {
+    id: string;
+    ref: FirestoreRef;
+  };
+  user: {
+    id: string;
+    ref: FirestoreRef;
+  };
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Team Auth
+
+interface FirestoreTeamAuthDoc {
+  joinHash: string;
+  team: {
+    id: string;
+    ref: FirestoreRef;
+  };
+  createdAt?: FirestoreTimestamp;
+  updatedAt?: FirestoreTimestamp;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Game Query
+
+interface FirestoreGameQueryDoc {
+  games: FirestoreGame[];
+  queries: number;
+  createdAt?: FirestoreTimestamp;
+  updatedAt?: FirestoreTimestamp;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Other
@@ -336,10 +475,15 @@ interface SocialAccount {
   label: string;
   url: string;
 }
-export const isValidUrl = (url: string): boolean =>
-  Boolean(url) && (url.startsWith('http://') || url.startsWith('https://'));
+export const isValidUrl = (url: string): boolean => {
+  if (!Boolean(url) || typeof url !== 'string') {
+    return false;
+  }
+
+  return url.startsWith('http://') || url.startsWith('https://');
+};
 export const isValidEmail = (email: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-export const googleMapsLink = (query: string): string => {
+export const googleMapsLink = (query: string | undefined): string => {
   if (!query) {
     return '';
   }
@@ -381,6 +525,38 @@ export const shallowEqual = (object1: { [key: string]: unknown }, object2: { [ke
 
   return true;
 };
+const badWordFilter = new Filter();
+export const cleanBadWords = (text: string): string => badWordFilter.clean(text);
+// NOTE: This method mutates the original object, otherwise the `delete` would not work.
+export const sanitizePrivateProperties = (obj: { [key: string]: any }): { [key: string]: any } => {
+  for (const prop in obj) {
+    // Assuming a private property starts with an underscore.
+    // In the case of Firebase ref properties, they do.
+    if (prop.startsWith('_')) {
+      delete obj[prop];
+    } else if (typeof obj[prop] === 'object') {
+      sanitizePrivateProperties(obj[prop]);
+    }
+  }
+
+  return obj;
+};
+
+export const cleanObjectOfBadWords = (obj: { [key: string]: any }): { [key: string]: any } => {
+  const _obj = { ...obj };
+
+  for (const prop in _obj) {
+    // Assuming a private property starts with an underscore.
+    // In the case of Firebase ref properties, they do.
+    if (!prop.startsWith('_') && typeof _obj[prop] === 'string' && _obj[prop].trim() !== '') {
+      cleanBadWords(_obj[prop]);
+    } else if (['meta', 'school', 'user', 'event', 'twitter', 'og'].includes(prop)) {
+      cleanObjectOfBadWords(_obj[prop]);
+    }
+  }
+
+  return _obj;
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 // Challonge
@@ -416,14 +592,129 @@ export const TIMEZONES: Timezone[] = [
 export const MAX_DAYS_IN_MONTH: number = 31;
 export const DEFAULT_TIME_INCREMENT: number = 15;
 export const DAYS = range(1, MAX_DAYS_IN_MONTH + 1).map((day: number) => day.toString());
+export const hasStarted = (startDateTime: FirestoreTimestamp, endDateTime: FirestoreTimestamp): boolean => {
+  if (!Boolean(startDateTime) || !Boolean(endDateTime)) {
+    return false;
+  }
+
+  return Interval.fromDateTimes(startDateTime.toDate(), endDateTime.toDate()).contains(DateTime.local());
+};
+export const hasEnded = (endDateTime: FirestoreTimestamp): boolean => {
+  if (!Boolean(endDateTime)) {
+    return false;
+  }
+
+  return DateTime.local() > DateTime.fromISO(endDateTime.toDate().toISOString());
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 // Event
 
+interface FirestoreEventDoc {
+  id: string;
+  name: string;
+  creator: FirestoreUserSubDoc;
+  school: FirestoreSchoolSubDoc;
+  responses: {
+    yes: number;
+    no: number;
+  };
+  description: string;
+  isOnlineEvent: boolean;
+  game: FirestoreGame;
+  placeId?: string;
+  location?: string;
+  pageViews?: number;
+  startDateTime: FirestoreTimestamp;
+  endDateTime: FirestoreTimestamp;
+  createdAt?: FirestoreTimestamp;
+  updatedAt?: FirestoreTimestamp;
+}
+interface FirestoreEventSubDoc {
+  id: string;
+  name: string;
+  ref: FirestoreRef;
+  description: string;
+  responses: {
+    yes: number;
+    no: number;
+  };
+  startDateTime: FirestoreTimestamp;
+  endDateTime: FirestoreTimestamp;
+  isOnlineEvent: boolean;
+  game: FirestoreGame;
+  createdAt?: FirestoreTimestamp;
+  updatedAt?: FirestoreTimestamp;
+}
+interface FirestoreGame {
+  id: number;
+  cover: {
+    id: number;
+    url: string;
+  };
+  name: string;
+  slug: string;
+}
 export const EVENT_EMPTY_USERS_TEXT: string = 'This event currently has no attending users.';
 export const EVENT_EMPTY_LOCATION_TEXT: string = 'To be determined';
 export const MAX_DESCRIPTION_LENGTH: number = 5000;
+export const getEventUrl = (eventId: string): string => {
+  return `${PRODUCTION_URL}/event/${eventId}`;
+};
+export const getEventMetaDescription = (event: FirestoreEventDoc): string => {
+  return `${event.startDateTime.toDate()}: ${event.description}`;
+};
+export const mapEvent = (event: FirestoreEventDoc): object | undefined => {
+  if (!Boolean(event)) {
+    return undefined;
+  }
 
+  const metaDescription = getEventMetaDescription(event);
+  const url = getEventUrl(event.id);
+
+  return cleanObjectOfBadWords({
+    ...event,
+    createdAt: event.createdAt?.toDate(),
+    updatedAt: event.updatedAt?.toDate(),
+    url,
+    googleMapsAddressLink: googleMapsLink(event.location),
+    hasStarted: hasStarted(event.startDateTime, event.endDateTime),
+    hasEnded: hasEnded(event.endDateTime),
+    school: mapSubSchool(event.school),
+    meta: {
+      title: event.name,
+      description: metaDescription.substring(0, 155),
+      twitter: {
+        card: 'summary',
+        site: SITE_NAME,
+        title: event.name,
+        description: metaDescription.substring(0, 200),
+        creator: CGN_TWITTER_HANDLE,
+      },
+      og: {
+        title: event.name,
+        type: 'article',
+        url,
+        description: metaDescription,
+        site_name: SITE_NAME,
+      },
+    },
+  });
+};
+export const mapSubEvent = (event: FirestoreEventSubDoc): object | undefined => {
+  if (!Boolean(event)) {
+    return undefined;
+  }
+
+  const url = getEventUrl(event.id);
+
+  return cleanObjectOfBadWords({
+    ...event,
+    url,
+    hasStarted: hasStarted(event.startDateTime, event.endDateTime),
+    hasEnded: hasEnded(event.endDateTime),
+  });
+};
 ////////////////////////////////////////////////////////////////////////////////
 // Event Response
 
@@ -439,6 +730,14 @@ export const EVENT_RESPONSES: EventResponses = {
   YES: EventResponse.Yes,
   NO: EventResponse.No,
 };
+interface FirestoreEventResponseDoc {
+  response: EventResponse;
+  user: FirestoreUserSubDoc;
+  event: FirestoreEventSubDoc;
+  school: FirestoreSchoolSubDoc;
+  createdAt?: FirestoreTimestamp;
+  updatedAt?: FirestoreTimestamp;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Style Utilities

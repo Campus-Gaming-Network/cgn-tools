@@ -1,6 +1,6 @@
 {
   "name": "@campus-gaming-network/tools",
-  "version": "2.0.8",
+  "version": "2.0.9",
   "description": "A number of utilities and constants used across Campus Gaming Network applications.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -31,11 +31,14 @@
   },
   "homepage": "https://github.com/Campus-Gaming-Network/cgn-tools#readme",
   "devDependencies": {
+    "@firebase/firestore-types": "^2.5.0",
+    "@types/bad-words": "^3.0.1",
     "@types/joi": "^17.2.3",
     "@types/lodash": "^4.14.173",
     "@types/lodash.capitalize": "^4.2.6",
     "@types/lodash.range": "^3.2.6",
     "@types/lodash.startcase": "^4.4.6",
+    "@types/luxon": "^2.0.5",
     "@types/md5": "^2.3.1",
     "@types/node": "^16.9.1",
     "prettier": "^2.3.2",
@@ -43,10 +46,12 @@
     "tslint-config-prettier": "^1.18.0"
   },
   "dependencies": {
+    "bad-words": "^3.0.4",
     "joi": "^17.4.2",
     "lodash.capitalize": "^4.2.1",
     "lodash.range": "^3.2.0",
     "lodash.startcase": "^4.4.0",
+    "luxon": "^2.0.2",
     "md5": "^2.3.0",
     "nanoid": "^3.1.30"
   }

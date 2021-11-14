@@ -4,6 +4,8 @@ Collection of utilities and constants that can be shared across all Campus Gamin
 
 ## Scripts
 
+https://docs.npmjs.com/cli/v7/using-npm/scripts#life-cycle-scripts
+
 `prepare` will run both BEFORE the package is packed and published, and on local npm install. Perfect for running building the code.
 
 `prepublishOnly` will run BEFORE prepare and ONLY on `npm publish`.
