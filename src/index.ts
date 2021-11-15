@@ -1,7 +1,8 @@
 import range from 'lodash.range';
 import capitalize from 'lodash.capitalize';
-import md5 from 'md5';
+import intersection from 'lodash.intersection';
 import startCase from 'lodash.startcase';
+import md5 from 'md5';
 import Joi from 'joi';
 import { customAlphabet } from 'nanoid';
 import Filter from 'bad-words';
@@ -248,7 +249,7 @@ interface FirestoreUserDoc {
   bio: string;
   timezone: string;
   hometown: string;
-  birthdate: string;
+  birthdate: FirestoreTimestamp;
   twitter: string;
   twitch: string;
   youtube: string;
@@ -314,8 +315,67 @@ export const createGravatarRequestUrl = (hash: string = '', email: string = ''):
 
   return `https://www.gravatar.com/avatar/${hash}?s=100&d=${GRAVATAR.DEFAULT}&r=${GRAVATAR.RA}`;
 };
-export const getUserDisplayStatus = (status: string): string =>
-  ({ ALUMNI: 'Alumni of ', GRAD: 'Graduate Student at ' }[status] || `${capitalize(status)} at `);
+export const getUserDisplayStatus = (status: string): string => {
+  return { ALUMNI: 'Alumni of ', GRAD: 'Graduate Student at ' }[status] || `${capitalize(status)} at `;
+};
+export const mapUser = (user: FirestoreUserDoc): object | undefined => {
+  if (!Boolean(user)) {
+    return undefined;
+  }
+
+  const fullName = startCase(`${user.firstName} ${user.lastName}`.trim().toLowerCase());
+  const url = `${PRODUCTION_URL}/user/${user.id}`;
+
+  return cleanObjectOfBadWords({
+    ...user,
+    createdAt: user.createdAt?.toDate(),
+    updatedAt: user.updatedAt?.toDate(),
+    birthdate: buildDateTime(user.birthdate),
+    school: mapSubSchool(user.school),
+    fullName,
+    hasAccounts: userHasAccounts(user),
+    hasFavoriteGames: Boolean(user.favoriteGames?.length),
+    hasCurrentlyPlaying: Boolean(user.currentlyPlaying?.length),
+    displayStatus: getUserDisplayStatus(user.status),
+    gravatarUrl: createGravatarRequestUrl(user.gravatar),
+    meta: {
+      title: fullName,
+      og: {
+        url,
+      },
+    },
+  });
+};
+export const mapSubUser = (user: FirestoreUserSubDoc): object | undefined => {
+  if (!Boolean(user)) {
+    return undefined;
+  }
+
+  const fullName = startCase(`${user.firstName} ${user.lastName}`.trim().toLowerCase());
+  const url = `${PRODUCTION_URL}/user/${user.id}`;
+
+  return cleanObjectOfBadWords({
+    ...user,
+    createdAt: user.createdAt?.toDate(),
+    updatedAt: user.updatedAt?.toDate(),
+    fullName,
+    displayStatus: getUserDisplayStatus(user.status),
+    gravatarUrl: createGravatarRequestUrl(user.gravatar),
+    meta: {
+      title: fullName,
+      og: {
+        url,
+      },
+    },
+  });
+};
+export const userHasAccounts = (user: { [key: string]: any }): boolean => {
+  if (!Boolean(user)) {
+    return false;
+  }
+
+  return intersection(Object.keys(SOCIAL_ACCOUNTS), Object.keys(user)).filter((key) => Boolean(user[key])).length > 0;
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 // Team
@@ -353,6 +413,75 @@ export const TEAM_ROLE_TYPES: TeamRoleTypes = {
   LEADER: 'leader',
   OFFICER: 'officer',
 };
+export const getTeamUrl = (teamId: string): string => {
+  return `${PRODUCTION_URL}/team/${teamId}`;
+};
+export const getTeamDisplayName = (teamName: string, teamShortName: string | undefined): string => {
+  let displayName = teamName;
+
+  if (Boolean(teamShortName)) {
+    displayName = `${teamName} (${teamShortName})`;
+  }
+
+  return displayName;
+};
+export const mapTeam = (team: FirestoreTeamDoc): object | undefined => {
+  if (!Boolean(team)) {
+    return undefined;
+  }
+
+  const url = getTeamUrl(team.id);
+
+  return cleanObjectOfBadWords({
+    ...team,
+    displayName: getTeamDisplayName(team.name, team.shortName),
+    memberCount: team.memberCount,
+    url,
+    meta: {
+      title: team.name,
+      twitter: {
+        card: 'summary',
+        site: SITE_NAME,
+        title: team.name,
+        creator: CGN_TWITTER_HANDLE,
+      },
+      og: {
+        title: team.name,
+        type: 'article',
+        url,
+        site_name: SITE_NAME,
+      },
+    },
+  });
+};
+export const mapSubTeam = (team: FirestoreTeamSubDoc): object | undefined => {
+  if (!Boolean(team)) {
+    return undefined;
+  }
+
+  const url = getTeamUrl(team.id);
+
+  return cleanObjectOfBadWords({
+    ...team,
+    displayName: getTeamDisplayName(team.name, team.shortName),
+    url,
+    meta: {
+      title: team.name,
+      twitter: {
+        card: 'summary',
+        site: SITE_NAME,
+        title: team.name,
+        creator: CGN_TWITTER_HANDLE,
+      },
+      og: {
+        title: team.name,
+        type: 'article',
+        url,
+        site_name: SITE_NAME,
+      },
+    },
+  });
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 // Teammate
@@ -360,7 +489,22 @@ export const TEAM_ROLE_TYPES: TeamRoleTypes = {
 interface FirestoreTeammateDoc {
   user: FirestoreUserSubDoc;
   team: FirestoreTeamSubDoc;
+  createdAt?: FirestoreTimestamp;
+  updatedAt?: FirestoreTimestamp;
 }
+export const mapTeammate = (teammate: FirestoreTeammateDoc): object | undefined => {
+  if (!Boolean(teammate)) {
+    return undefined;
+  }
+
+  return cleanObjectOfBadWords({
+    ...teammate,
+    createdAt: teammate.createdAt?.toDate(),
+    updatedAt: teammate.updatedAt?.toDate(),
+    user: mapSubUser(teammate.user),
+    team: mapSubTeam(teammate.team),
+  });
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 // Role
@@ -411,6 +555,26 @@ interface FirestoreGameQueryDoc {
   createdAt?: FirestoreTimestamp;
   updatedAt?: FirestoreTimestamp;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// Tournament
+
+interface FirestoreTournamentDoc {
+  id: string;
+  createdAt?: FirestoreTimestamp;
+  updatedAt?: FirestoreTimestamp;
+}
+export const mapTournament = (tournament: FirestoreTournamentDoc): FirestoreTournamentDoc | undefined => {
+  if (!Boolean(tournament)) {
+    return undefined;
+  }
+
+  return cleanObjectOfBadWords({
+    ...tournament,
+    createdAt: tournament.createdAt?.toDate(),
+    updatedAt: tournament.updatedAt?.toDate(),
+  });
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 // Other
@@ -473,7 +637,8 @@ export const GRAVATAR: Gravatar = {
 };
 interface SocialAccount {
   label: string;
-  url: string;
+  icon: string;
+  url?: string;
 }
 export const isValidUrl = (url: string): boolean => {
   if (!Boolean(url) || typeof url !== 'string') {
@@ -542,20 +707,70 @@ export const sanitizePrivateProperties = (obj: { [key: string]: any }): { [key: 
   return obj;
 };
 
-export const cleanObjectOfBadWords = (obj: { [key: string]: any }): { [key: string]: any } => {
+export const cleanObjectOfBadWords = (obj: any): any => {
   const _obj = { ...obj };
 
   for (const prop in _obj) {
-    // Assuming a private property starts with an underscore.
-    // In the case of Firebase ref properties, they do.
-    if (!prop.startsWith('_') && typeof _obj[prop] === 'string' && _obj[prop].trim() !== '') {
-      cleanBadWords(_obj[prop]);
-    } else if (['meta', 'school', 'user', 'event', 'twitter', 'og'].includes(prop)) {
-      cleanObjectOfBadWords(_obj[prop]);
+    if (obj.hasOwnProperty(prop)) {
+      const value = _obj[prop];
+
+      // Assuming a private property starts with an underscore.
+      // In the case of Firebase ref properties, they do.
+      if (!prop.startsWith('_') && typeof value === 'string' && Boolean(value) && value.trim() !== '') {
+        cleanBadWords(value);
+      } else if (['meta', 'school', 'user', 'event', 'twitter', 'og'].includes(prop)) {
+        cleanObjectOfBadWords(value);
+      }
     }
   }
 
   return _obj;
+};
+export const SOCIAL_ACCOUNTS = {
+  website: {
+    label: 'Website',
+    icon: 'faGlobe',
+  },
+  twitter: {
+    label: 'Twitter',
+    icon: 'faTwitter',
+    url: 'twitter.com/',
+  },
+  twitch: {
+    label: 'Twitch',
+    icon: 'faTwitch',
+    url: 'twitch.tv/',
+  },
+  youtube: {
+    label: 'YouTube',
+    icon: 'faYoutube',
+    url: 'youtube.com/user/',
+  },
+  skype: {
+    label: 'Skype',
+    icon: 'faSkype',
+  },
+  discord: {
+    label: 'Discord',
+    icon: 'faDiscord',
+  },
+  battlenet: {
+    label: 'Battle.net',
+    icon: 'faBattleNet',
+  },
+  steam: {
+    label: 'Steam',
+    icon: 'faSteam',
+    url: 'steamcommunity.com/id/',
+  },
+  xbox: {
+    label: 'Xbox Live',
+    icon: 'faXbox',
+  },
+  psn: {
+    label: 'PSN',
+    icon: 'faPlaystation',
+  },
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -605,6 +820,35 @@ export const hasEnded = (endDateTime: FirestoreTimestamp): boolean => {
   }
 
   return DateTime.local() > DateTime.fromISO(endDateTime.toDate().toISOString());
+};
+interface DateTimeConfig {
+  firestore: FirestoreTimestamp;
+  base: Date;
+  iso: string;
+  locale: string;
+  relative: string | null;
+}
+export const buildDateTime = (dateTime: FirestoreTimestamp): DateTimeConfig | undefined => {
+  if (!Boolean(dateTime)) {
+    return undefined;
+  }
+
+  const _dateTime: Date = dateTime.toDate();
+  const _dateTimeISO: string = _dateTime.toISOString();
+  const localeFormat = {
+    ...DateTime.DATETIME_FULL,
+    month: 'long',
+    day: 'numeric',
+  };
+
+  return {
+    firestore: dateTime,
+    base: _dateTime,
+    iso: _dateTimeISO,
+    // @ts-ignore
+    locale: DateTime.fromISO(_dateTimeISO).toLocaleString(localeFormat),
+    relative: DateTime.fromISO(_dateTimeISO).toRelativeCalendar(),
+  };
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -738,6 +982,20 @@ interface FirestoreEventResponseDoc {
   createdAt?: FirestoreTimestamp;
   updatedAt?: FirestoreTimestamp;
 }
+export const mapEventResponse = (eventResponse: FirestoreEventResponseDoc): object | undefined => {
+  if (!Boolean(eventResponse)) {
+    return undefined;
+  }
+
+  return cleanObjectOfBadWords({
+    ...eventResponse,
+    createdAt: eventResponse.createdAt?.toDate(),
+    updatedAt: eventResponse.updatedAt?.toDate(),
+    school: mapSubSchool(eventResponse.school),
+    user: mapSubUser(eventResponse.user),
+    event: mapSubEvent(eventResponse.event),
+  });
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 // Style Utilities
