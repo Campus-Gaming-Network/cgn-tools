@@ -1022,9 +1022,7 @@ export const createdAtSchema = Joi.date().timestamp().allow('');
 export const updatedAtSchema = Joi.date().timestamp().allow('');
 export const emailSchema = Joi.string().email({ tlds: { allow: false } });
 export const passwordSchema = Joi.string().alphanum().min(MIN_PASSWORD_LENGTH);
-export const userStatusSchema = Joi.array().items(
-  Joi.string().valid(...STUDENT_STATUS_OPTIONS.map((o) => o && o.value)),
-);
+export const userStatusSchema = Joi.string().valid(...STUDENT_STATUS_OPTIONS.map((o) => o && o.value));
 export const subEventSchema = Joi.object({
   id: idSchema,
   name: Joi.string().alphanum().max(BASE_STRING_MAX_LENGTH).required(),
