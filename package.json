@@ -1,6 +1,6 @@
 {
   "name": "@campus-gaming-network/tools",
-  "version": "2.0.92",
+  "version": "2.0.93",
   "description": "A number of utilities and constants used across Campus Gaming Network applications.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -50,6 +50,7 @@
   },
   "dependencies": {
     "bad-words": "^3.0.4",
+    "intl": "^1.2.5",
     "joi": "^17.4.2",
     "lodash.capitalize": "^4.2.1",
     "lodash.intersection": "^4.4.0",
@@ -57,6 +58,6 @@
     "lodash.startcase": "^4.4.0",
     "luxon": "^2.0.2",
     "md5": "^2.3.0",
-    "nanoid": "^3.1.30"
+    "text-encoding-polyfill": "^0.6.7"
   }
 }

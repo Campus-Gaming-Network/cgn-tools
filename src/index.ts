@@ -4,10 +4,12 @@ import intersection from 'lodash.intersection';
 import startCase from 'lodash.startcase';
 import md5 from 'md5';
 import Joi from 'joi';
-import { customAlphabet } from 'nanoid';
 import Filter from 'bad-words';
 import { DateTime, Interval } from 'luxon';
 import { Timestamp as FirestoreTimestamp, GeoPoint as FirestoreGeoPoint } from '@firebase/firestore-types';
+import 'intl';
+import 'intl/locale-data/jsonp/en';
+import 'text-encoding-polyfill';
 
 ////////////////////////////////////////////////////////////////////////////////
 // Firebase
@@ -784,7 +786,6 @@ export const CHALLONGE_API_URL: string = 'https://api.challonge.com/v1/';
 
 export const NANO_ALPHABET: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 export const NANO_ID_LENGTH: number = 10;
-export const nanoid = customAlphabet(NANO_ALPHABET, NANO_ID_LENGTH);
 
 ////////////////////////////////////////////////////////////////////////////////
 // DateTime
