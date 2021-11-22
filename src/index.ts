@@ -390,7 +390,7 @@ export const mapSubUser = (user: FirestoreUserSubDoc, clean = true): object | un
   };
 
   if (clean) {
-      return cleanObjectOfBadWords(mappedUser);
+    return cleanObjectOfBadWords(mappedUser);
   }
 
   return mappedUser;
