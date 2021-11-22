@@ -1175,6 +1175,14 @@ export const teammateSchema = Joi.object({
   createdAt: createdAtSchema,
   updatedAt: updatedAtSchema,
 });
+interface SignUpForm {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  school: string;
+  status: string;
+}
 export const signUpSchema = Joi.object({
   firstName: Joi.string().max(BASE_STRING_MAX_LENGTH).required(),
   lastName: Joi.string().max(BASE_STRING_MAX_LENGTH).required(),
@@ -1183,16 +1191,49 @@ export const signUpSchema = Joi.object({
   school: Joi.string().max(BASE_STRING_MAX_LENGTH).required(),
   status: userStatusSchema.required(),
 });
+interface LogInForm {
+  email: string;
+  password: string;
+}
 export const logInSchema = Joi.object({
   email: emailSchema.required(),
   password: passwordSchema.required(),
 });
+interface ForgotPasswordForm {
+  email: string;
+}
 export const forgotPasswordSchema = Joi.object({
   email: emailSchema.required(),
 });
+interface PasswordResetForm {
+  password: string;
+}
 export const passwordResetSchema = Joi.object({
   password: passwordSchema.required(),
 });
+interface CreateEventForm {
+  name: string;
+  description: string;
+  game: FirestoreGame;
+  startMonth: string;
+  startDay: string;
+  startYear: string;
+  startTime: string;
+  endMonth: string;
+  endDay: string;
+  endYear: string;
+  endTime: string;
+}
+interface CreateEventFormOnline extends CreateEventForm {
+  isOnlineEvent: true;
+  placeId?: string | null;
+  location?: string | null;
+}
+interface CreateEventFormOffline extends CreateEventForm {
+  isOnlineEvent: false;
+  placeId: string;
+  location: string;
+}
 export const createEventSchema = Joi.object({
   name: Joi.string().trim().max(BASE_STRING_MAX_LENGTH).required(),
   description: Joi.string().trim().max(MAX_DESCRIPTION_LENGTH).required(),
@@ -1215,14 +1256,35 @@ export const createEventSchema = Joi.object({
     .max(BASE_STRING_MAX_LENGTH)
     .when('isOnlineEvent', { is: true, then: Joi.allow('', null).optional() }),
 }).options({ presence: 'required' });
-export const validateCreateUser = (form: {}) => userSchema.validate(form, validateOptions);
-export const validateEditUser = (form: {}) => userSchema.validate(form, validateOptions);
-export const validateCreateEvent = (form: {}) => createEventSchema.validate(form, validateOptions);
-export const validateEditEvent = (form: {}) => eventSchema.validate(form, validateOptions);
-export const validateEditSchool = (form: {}) => schoolSchema.validate(form, validateOptions);
-export const validateCreateTeam = (form: {}) => eventSchema.validate(form, validateOptions);
-export const validateEditTeam = (form: {}) => eventSchema.validate(form, validateOptions);
-export const validateSignUp = (form: {}) => signUpSchema.validate(form, validateOptions);
-export const validateLogIn = (form: {}) => logInSchema.validate(form, validateOptions);
-export const validateForgotPassword = (form: {}) => forgotPasswordSchema.validate(form, validateOptions);
-export const validatePasswordReset = (form: {}) => passwordResetSchema.validate(form, validateOptions);
+interface CreateTeamForm {
+  name: string;
+  shortName: string | null;
+  website: string | null;
+  description: string | null;
+}
+export const createTeamSchema = Joi.object({
+  name: Joi.string().trim().max(BASE_STRING_MAX_LENGTH).required(),
+  shortName: Joi.string().trim().max(BASE_STRING_MAX_LENGTH).allow(''),
+  website: Joi.string().trim().max(BASE_STRING_MAX_LENGTH).allow(''),
+  description: Joi.string().trim().max(MAX_DESCRIPTION_LENGTH).allow(''),
+});
+interface JoinTeamForm {
+  teamId: string;
+  password: string;
+}
+export const joinTeamSchema = Joi.object({
+  teamId: Joi.string().trim().max(BASE_STRING_MAX_LENGTH).required(),
+  password: Joi.string().trim().max(BASE_STRING_MAX_LENGTH).required(),
+});
+// export const validateCreateUser = (form: {}) => userSchema.validate(form, validateOptions);
+// export const validateEditUser = (form: {}) => userSchema.validate(form, validateOptions);
+export const validateCreateEvent = (form: CreateEventFormOnline | CreateEventFormOffline) => createEventSchema.validate(form, validateOptions);
+export const validateEditEvent = (form: CreateEventFormOnline | CreateEventFormOffline) => eventSchema.validate(form, validateOptions);
+export const validateCreateTeam = (form: CreateTeamForm) => createTeamSchema.validate(form, validateOptions);
+export const validateEditTeam = (form: CreateTeamForm) => eventSchema.validate(form, validateOptions);
+export const validateJoinTeam = (form: JoinTeamForm) => joinTeamSchema.validate(form, validateOptions);
+export const validateSignUp = (form: SignUpForm) => signUpSchema.validate(form, validateOptions);
+export const validateLogIn = (form: LogInForm) => logInSchema.validate(form, validateOptions);
+export const validateForgotPassword = (form: ForgotPasswordForm) =>
+  forgotPasswordSchema.validate(form, validateOptions);
+export const validatePasswordReset = (form: PasswordResetForm) => passwordResetSchema.validate(form, validateOptions);

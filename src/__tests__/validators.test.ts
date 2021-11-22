@@ -13,6 +13,7 @@ import {
   getClosestTimeByN,
   MAX_DEFAULT_STRING_LENGTH,
   MAX_DESCRIPTION_LENGTH,
+  validateJoinTeam,
 } from '../index';
 
 const STATUSES: { [key: string]: string } = STUDENT_STATUS_OPTIONS.reduce(
@@ -67,11 +68,17 @@ const EVENT = {
   endTime: getClosestTimeByN(TOMORROW.hour, TOMORROW.minute, DEFAULT_TIME_INCREMENT),
 };
 
+const JOIN_TEAM = {
+  teamId: '123',
+  password: 'abc',
+};
+
 const SIGN_UP_FORM = 'SIGN_UP';
 const LOG_IN_FORM = 'LOG_IN';
 const FORGOT_PASSWORD_FORM = 'FORGOT_PASSWORD';
 const PASSWORD_RESET_FORM = 'PASSWORD_RESET';
 const CREATE_EVENT_FORM = 'CREATE_EVENT';
+const JOIN_TEAM_FORM = 'JOIN_TEAM';
 
 const FORMS = {
   [SIGN_UP_FORM]: {
@@ -86,6 +93,7 @@ const FORMS = {
     password: AUTH_USER.password,
   },
   [CREATE_EVENT_FORM]: EVENT,
+  [JOIN_TEAM_FORM]: JOIN_TEAM,
 };
 
 const NULL = null;
@@ -128,10 +136,12 @@ describe(LOG_IN_FORM, () => {
   });
 
   it('should be an invalid log in - email - null', () => {
+    // @ts-ignore
     toBeInvalid(validateLogIn({ ...FORM, email: NULL }));
   });
 
   it('should be an invalid log in - email - undefined', () => {
+    // @ts-ignore
     toBeInvalid(validateLogIn({ ...FORM, email: UNDEFINED }));
   });
 
@@ -148,10 +158,12 @@ describe(LOG_IN_FORM, () => {
   });
 
   it('should be an invalid log in - password - null', () => {
+    // @ts-ignore
     toBeInvalid(validateLogIn({ ...FORM, password: NULL }));
   });
 
   it('should be an invalid log in - password - undefined', () => {
+    // @ts-ignore
     toBeInvalid(validateLogIn({ ...FORM, password: UNDEFINED }));
   });
 
@@ -175,10 +187,12 @@ describe(FORGOT_PASSWORD_FORM, () => {
   });
 
   it('should be an invalid forgot password - email - null', () => {
+    // @ts-ignore
     toBeInvalid(validateForgotPassword({ ...FORM, email: NULL }));
   });
 
   it('should be an invalid forgot password - email - undefined', () => {
+    // @ts-ignore
     toBeInvalid(validateForgotPassword({ ...FORM, email: UNDEFINED }));
   });
 
@@ -206,10 +220,12 @@ describe(PASSWORD_RESET_FORM, () => {
   });
 
   it('should be an invalid password reset - password - null', () => {
+    // @ts-ignore
     toBeInvalid(validatePasswordReset({ ...FORM, password: NULL }));
   });
 
   it('should be an invalid password reset - password - undefined', () => {
+    // @ts-ignore
     toBeInvalid(validatePasswordReset({ ...FORM, password: UNDEFINED }));
   });
 
@@ -219,6 +235,61 @@ describe(PASSWORD_RESET_FORM, () => {
 
   it('should be an invalid password reset - password - too short', () => {
     toBeInvalid(validatePasswordReset({ ...FORM, password: SHORT_PASSWORD }));
+  });
+});
+
+////////////////////////////////////////////////////////////////////////////////
+// Join Team Form
+
+describe(JOIN_TEAM_FORM, () => {
+  const FORM = FORMS.JOIN_TEAM;
+
+  it('should be a valid join team', () => {
+    toBeValid(validateJoinTeam(FORM));
+  });
+
+  it('should be an invalid join team - email - empty string', () => {
+    toBeInvalid(validateJoinTeam({ ...FORM, teamId: EMPTY_STRING }));
+  });
+
+  it('should be an invalid join team - teamId - null', () => {
+    // @ts-ignore
+    toBeInvalid(validateJoinTeam({ ...FORM, teamId: NULL }));
+  });
+
+  it('should be an invalid join team - teamId - undefined', () => {
+    // @ts-ignore
+    toBeInvalid(validateJoinTeam({ ...FORM, teamId: UNDEFINED }));
+  });
+
+  it('should be an invalid join team - teamId - empty string space', () => {
+    toBeInvalid(validateJoinTeam({ ...FORM, teamId: EMPTY_STRING_SPACE }));
+  });
+
+  it('should be an invalid join team - teamId - too long', () => {
+    toBeInvalid(validateJoinTeam({ ...FORM, teamId: LONG_BASE_STRING }));
+  });
+
+  it('should be an invalid join team - password - empty string', () => {
+    toBeInvalid(validateJoinTeam({ ...FORM, password: EMPTY_STRING }));
+  });
+
+  it('should be an invalid join team - password - null', () => {
+    // @ts-ignore
+    toBeInvalid(validateJoinTeam({ ...FORM, password: NULL }));
+  });
+
+  it('should be an invalid join team - password - undefined', () => {
+    // @ts-ignore
+    toBeInvalid(validateJoinTeam({ ...FORM, password: UNDEFINED }));
+  });
+
+  it('should be an invalid join team - password - empty string space', () => {
+    toBeInvalid(validateJoinTeam({ ...FORM, password: EMPTY_STRING_SPACE }));
+  });
+
+  it('should be an invalid join team - password - too long', () => {
+    toBeInvalid(validateJoinTeam({ ...FORM, password: LONG_BASE_STRING }));
   });
 });
 
@@ -237,10 +308,12 @@ describe(CREATE_EVENT_FORM, () => {
   });
 
   it('should be an invalid create event - name - null', () => {
+    // @ts-ignore
     toBeInvalid(validateCreateEvent({ ...FORM, name: NULL }));
   });
 
   it('should be an invalid create event - name - undefined', () => {
+    // @ts-ignore
     toBeInvalid(validateCreateEvent({ ...FORM, name: UNDEFINED }));
   });
 
@@ -257,10 +330,12 @@ describe(CREATE_EVENT_FORM, () => {
   });
 
   it('should be an invalid create event - description - null', () => {
+    // @ts-ignore
     toBeInvalid(validateCreateEvent({ ...FORM, description: NULL }));
   });
 
   it('should be an invalid create event - description - undefined', () => {
+    // @ts-ignore
     toBeInvalid(validateCreateEvent({ ...FORM, description: UNDEFINED }));
   });
 
@@ -273,22 +348,27 @@ describe(CREATE_EVENT_FORM, () => {
   });
 
   it('should be an invalid create event - game - empty string', () => {
+    // @ts-ignore
     toBeInvalid(validateCreateEvent({ ...FORM, game: EMPTY_STRING }));
   });
 
   it('should be an invalid create event - game - null', () => {
+    // @ts-ignore
     toBeInvalid(validateCreateEvent({ ...FORM, game: NULL }));
   });
 
   it('should be an invalid create event - game - undefined', () => {
+    // @ts-ignore
     toBeInvalid(validateCreateEvent({ ...FORM, game: UNDEFINED }));
   });
 
   it('should be an invalid create event - game - empty string space', () => {
+    // @ts-ignore
     toBeInvalid(validateCreateEvent({ ...FORM, game: EMPTY_STRING_SPACE }));
   });
 
   it('should be an invalid create event - game - empty object', () => {
+    // @ts-ignore
     toBeInvalid(validateCreateEvent({ ...FORM, game: EMPTY_OBJECT }));
   });
 
@@ -297,10 +377,12 @@ describe(CREATE_EVENT_FORM, () => {
   });
 
   it('should be an invalid create event - startDay - null', () => {
+    // @ts-ignore
     toBeInvalid(validateCreateEvent({ ...FORM, startDay: NULL }));
   });
 
   it('should be an invalid create event - startDay - undefined', () => {
+    // @ts-ignore
     toBeInvalid(validateCreateEvent({ ...FORM, startDay: UNDEFINED }));
   });
 
@@ -313,10 +395,12 @@ describe(CREATE_EVENT_FORM, () => {
   });
 
   it('should be an invalid create event - startMonth - null', () => {
+    // @ts-ignore
     toBeInvalid(validateCreateEvent({ ...FORM, startMonth: NULL }));
   });
 
   it('should be an invalid create event - startMonth - undefined', () => {
+    // @ts-ignore
     toBeInvalid(validateCreateEvent({ ...FORM, startMonth: UNDEFINED }));
   });
 
@@ -329,10 +413,12 @@ describe(CREATE_EVENT_FORM, () => {
   });
 
   it('should be an invalid create event - startYear - null', () => {
+    // @ts-ignore
     toBeInvalid(validateCreateEvent({ ...FORM, startYear: NULL }));
   });
 
   it('should be an invalid create event - startYear - undefined', () => {
+    // @ts-ignore
     toBeInvalid(validateCreateEvent({ ...FORM, startYear: UNDEFINED }));
   });
 
@@ -345,10 +431,12 @@ describe(CREATE_EVENT_FORM, () => {
   });
 
   it('should be an invalid create event - startTime - null', () => {
+    // @ts-ignore
     toBeInvalid(validateCreateEvent({ ...FORM, startTime: NULL }));
   });
 
   it('should be an invalid create event - startTime - undefined', () => {
+    // @ts-ignore
     toBeInvalid(validateCreateEvent({ ...FORM, startTime: UNDEFINED }));
   });
 
@@ -361,10 +449,12 @@ describe(CREATE_EVENT_FORM, () => {
   });
 
   it('should be an invalid create event - endDay - null', () => {
+    // @ts-ignore
     toBeInvalid(validateCreateEvent({ ...FORM, endDay: NULL }));
   });
 
   it('should be an invalid create event - endDay - undefined', () => {
+    // @ts-ignore
     toBeInvalid(validateCreateEvent({ ...FORM, endDay: UNDEFINED }));
   });
 
@@ -377,10 +467,12 @@ describe(CREATE_EVENT_FORM, () => {
   });
 
   it('should be an invalid create event - endMonth - null', () => {
+    // @ts-ignore
     toBeInvalid(validateCreateEvent({ ...FORM, endMonth: NULL }));
   });
 
   it('should be an invalid create event - endMonth - undefined', () => {
+    // @ts-ignore
     toBeInvalid(validateCreateEvent({ ...FORM, endMonth: UNDEFINED }));
   });
 
@@ -393,10 +485,12 @@ describe(CREATE_EVENT_FORM, () => {
   });
 
   it('should be an invalid create event - endYear - null', () => {
+    // @ts-ignore
     toBeInvalid(validateCreateEvent({ ...FORM, endYear: NULL }));
   });
 
   it('should be an invalid create event - endYear - undefined', () => {
+    // @ts-ignore
     toBeInvalid(validateCreateEvent({ ...FORM, endYear: UNDEFINED }));
   });
 
@@ -409,10 +503,12 @@ describe(CREATE_EVENT_FORM, () => {
   });
 
   it('should be an invalid create event - endTime - null', () => {
+    // @ts-ignore
     toBeInvalid(validateCreateEvent({ ...FORM, endTime: NULL }));
   });
 
   it('should be an invalid create event - endTime - undefined', () => {
+    // @ts-ignore
     toBeInvalid(validateCreateEvent({ ...FORM, endTime: UNDEFINED }));
   });
 
@@ -457,10 +553,12 @@ describe(CREATE_EVENT_FORM, () => {
   });
 
   it('should be an invalid create event - placeId (isOnlineEvent: false) - null', () => {
+    // @ts-ignore
     toBeInvalid(validateCreateEvent({ ...FORM, isOnlineEvent: false, placeId: NULL }));
   });
 
   it('should be an invalid create event - placeId (isOnlineEvent: false) - undefined', () => {
+    // @ts-ignore
     toBeInvalid(validateCreateEvent({ ...FORM, isOnlineEvent: false, placeId: UNDEFINED }));
   });
 
@@ -473,10 +571,12 @@ describe(CREATE_EVENT_FORM, () => {
   });
 
   it('should be an invalid create event - location (isOnlineEvent: false) - null', () => {
+    // @ts-ignore
     toBeInvalid(validateCreateEvent({ ...FORM, isOnlineEvent: false, location: NULL }));
   });
 
   it('should be an invalid create event - location (isOnlineEvent: false) - undefined', () => {
+    // @ts-ignore
     toBeInvalid(validateCreateEvent({ ...FORM, isOnlineEvent: false, location: UNDEFINED }));
   });
 
