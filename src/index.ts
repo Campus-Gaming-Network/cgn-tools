@@ -193,7 +193,7 @@ export const formatSchoolName = (schoolName: string): string => {
 export const getSchoolUrl = (schoolId: string): string => {
   return `${PRODUCTION_URL}/school/${schoolId}`;
 };
-export const mapSchool = (school: FirestoreSchoolDoc): object | undefined => {
+export const mapSchool = (school: FirestoreSchoolDoc, clean = true): object | undefined => {
   if (!Boolean(school)) {
     return undefined;
   }
@@ -201,7 +201,7 @@ export const mapSchool = (school: FirestoreSchoolDoc): object | undefined => {
   const formattedName = formatSchoolName(school.name);
   const url = getSchoolUrl(school.id);
 
-  return cleanObjectOfBadWords({
+  const mappedSchool = {
     ...school,
     createdAt: school.createdAt?.toDate(),
     updatedAt: school.updatedAt?.toDate(),
@@ -219,9 +219,15 @@ export const mapSchool = (school: FirestoreSchoolDoc): object | undefined => {
         url,
       },
     },
-  });
+  };
+
+  if (clean) {
+    return cleanObjectOfBadWords(mappedSchool);
+  }
+
+  return mappedSchool;
 };
-export const mapSubSchool = (school: FirestoreSchoolSubDoc): object | undefined => {
+export const mapSubSchool = (school: FirestoreSchoolSubDoc, clean = true): object | undefined => {
   if (!Boolean(school)) {
     return undefined;
   }
@@ -229,11 +235,17 @@ export const mapSubSchool = (school: FirestoreSchoolSubDoc): object | undefined 
   const formattedName = formatSchoolName(school.name);
   const url = getSchoolUrl(school.id);
 
-  return cleanObjectOfBadWords({
+  const mappedSchool = {
     ...school,
     formattedName,
     url,
-  });
+  };
+
+  if (clean) {
+    return cleanObjectOfBadWords(mappedSchool);
+  }
+
+  return mappedSchool;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -320,7 +332,7 @@ export const createGravatarRequestUrl = (hash: string = '', email: string = ''):
 export const getUserDisplayStatus = (status: string): string => {
   return { ALUMNI: 'Alumni of ', GRAD: 'Graduate Student at ' }[status] || `${capitalize(status)} at `;
 };
-export const mapUser = (user: FirestoreUserDoc): object | undefined => {
+export const mapUser = (user: FirestoreUserDoc, clean = true): object | undefined => {
   if (!Boolean(user)) {
     return undefined;
   }
@@ -328,7 +340,7 @@ export const mapUser = (user: FirestoreUserDoc): object | undefined => {
   const fullName = startCase(`${user.firstName} ${user.lastName}`.trim().toLowerCase());
   const url = `${PRODUCTION_URL}/user/${user.id}`;
 
-  return cleanObjectOfBadWords({
+  const mappedUser = {
     ...user,
     createdAt: user.createdAt?.toDate(),
     updatedAt: user.updatedAt?.toDate(),
@@ -346,9 +358,15 @@ export const mapUser = (user: FirestoreUserDoc): object | undefined => {
         url,
       },
     },
-  });
+  };
+
+  if (clean) {
+    return cleanObjectOfBadWords(mappedUser);
+  }
+
+  return mappedUser;
 };
-export const mapSubUser = (user: FirestoreUserSubDoc): object | undefined => {
+export const mapSubUser = (user: FirestoreUserSubDoc, clean = true): object | undefined => {
   if (!Boolean(user)) {
     return undefined;
   }
@@ -356,7 +374,7 @@ export const mapSubUser = (user: FirestoreUserSubDoc): object | undefined => {
   const fullName = startCase(`${user.firstName} ${user.lastName}`.trim().toLowerCase());
   const url = `${PRODUCTION_URL}/user/${user.id}`;
 
-  return cleanObjectOfBadWords({
+  const mappedUser = {
     ...user,
     createdAt: user.createdAt?.toDate(),
     updatedAt: user.updatedAt?.toDate(),
@@ -369,7 +387,13 @@ export const mapSubUser = (user: FirestoreUserSubDoc): object | undefined => {
         url,
       },
     },
-  });
+  };
+
+  if (clean) {
+      return cleanObjectOfBadWords(mappedUser);
+  }
+
+  return mappedUser;
 };
 export const userHasAccounts = (user: { [key: string]: any }): boolean => {
   if (!Boolean(user)) {
@@ -427,14 +451,14 @@ export const getTeamDisplayName = (teamName: string, teamShortName: string | und
 
   return displayName;
 };
-export const mapTeam = (team: FirestoreTeamDoc): object | undefined => {
+export const mapTeam = (team: FirestoreTeamDoc, clean = true): object | undefined => {
   if (!Boolean(team)) {
     return undefined;
   }
 
   const url = getTeamUrl(team.id);
 
-  return cleanObjectOfBadWords({
+  const mappedTeam = {
     ...team,
     displayName: getTeamDisplayName(team.name, team.shortName),
     memberCount: team.memberCount,
@@ -454,16 +478,22 @@ export const mapTeam = (team: FirestoreTeamDoc): object | undefined => {
         site_name: SITE_NAME,
       },
     },
-  });
+  };
+
+  if (clean) {
+    return cleanObjectOfBadWords(mappedTeam);
+  }
+
+  return mappedTeam;
 };
-export const mapSubTeam = (team: FirestoreTeamSubDoc): object | undefined => {
+export const mapSubTeam = (team: FirestoreTeamSubDoc, clean = true): object | undefined => {
   if (!Boolean(team)) {
     return undefined;
   }
 
   const url = getTeamUrl(team.id);
 
-  return cleanObjectOfBadWords({
+  const mappedTeam = {
     ...team,
     displayName: getTeamDisplayName(team.name, team.shortName),
     url,
@@ -482,7 +512,13 @@ export const mapSubTeam = (team: FirestoreTeamSubDoc): object | undefined => {
         site_name: SITE_NAME,
       },
     },
-  });
+  };
+
+  if (clean) {
+    return cleanObjectOfBadWords(mappedTeam);
+  }
+
+  return mappedTeam;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -494,18 +530,24 @@ interface FirestoreTeammateDoc {
   createdAt?: FirestoreTimestamp;
   updatedAt?: FirestoreTimestamp;
 }
-export const mapTeammate = (teammate: FirestoreTeammateDoc): object | undefined => {
+export const mapTeammate = (teammate: FirestoreTeammateDoc, clean = true): object | undefined => {
   if (!Boolean(teammate)) {
     return undefined;
   }
 
-  return cleanObjectOfBadWords({
+  const mappedTeammate = {
     ...teammate,
     createdAt: teammate.createdAt?.toDate(),
     updatedAt: teammate.updatedAt?.toDate(),
     user: mapSubUser(teammate.user),
     team: mapSubTeam(teammate.team),
-  });
+  };
+
+  if (clean) {
+    return cleanObjectOfBadWords(mappedTeammate);
+  }
+
+  return mappedTeammate;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -566,16 +608,22 @@ interface FirestoreTournamentDoc {
   createdAt?: FirestoreTimestamp;
   updatedAt?: FirestoreTimestamp;
 }
-export const mapTournament = (tournament: FirestoreTournamentDoc): FirestoreTournamentDoc | undefined => {
+export const mapTournament = (tournament: FirestoreTournamentDoc, clean = true): object | undefined => {
   if (!Boolean(tournament)) {
     return undefined;
   }
 
-  return cleanObjectOfBadWords({
+  const mappedTournament = {
     ...tournament,
     createdAt: tournament.createdAt?.toDate(),
     updatedAt: tournament.updatedAt?.toDate(),
-  });
+  };
+
+  if (clean) {
+    return cleanObjectOfBadWords(mappedTournament);
+  }
+
+  return mappedTournament;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -926,7 +974,7 @@ export const getEventUrl = (eventId: string): string => {
 export const getEventMetaDescription = (event: FirestoreEventDoc): string => {
   return `${event.startDateTime.toDate()}: ${event.description}`;
 };
-export const mapEvent = (event: FirestoreEventDoc): object | undefined => {
+export const mapEvent = (event: FirestoreEventDoc, clean = true): object | undefined => {
   if (!Boolean(event)) {
     return undefined;
   }
@@ -934,7 +982,7 @@ export const mapEvent = (event: FirestoreEventDoc): object | undefined => {
   const metaDescription = getEventMetaDescription(event);
   const url = getEventUrl(event.id);
 
-  return cleanObjectOfBadWords({
+  const mappedEvent = {
     ...event,
     createdAt: event.createdAt?.toDate(),
     updatedAt: event.updatedAt?.toDate(),
@@ -961,21 +1009,33 @@ export const mapEvent = (event: FirestoreEventDoc): object | undefined => {
         site_name: SITE_NAME,
       },
     },
-  });
+  };
+
+  if (clean) {
+    return cleanObjectOfBadWords(mappedEvent);
+  }
+
+  return mappedEvent;
 };
-export const mapSubEvent = (event: FirestoreEventSubDoc): object | undefined => {
+export const mapSubEvent = (event: FirestoreEventSubDoc, clean = true): object | undefined => {
   if (!Boolean(event)) {
     return undefined;
   }
 
   const url = getEventUrl(event.id);
 
-  return cleanObjectOfBadWords({
+  const mappedEvent = {
     ...event,
     url,
     hasStarted: hasStarted(event.startDateTime, event.endDateTime),
     hasEnded: hasEnded(event.endDateTime),
-  });
+  };
+
+  if (clean) {
+    return cleanObjectOfBadWords(mappedEvent);
+  }
+
+  return mappedEvent;
 };
 ////////////////////////////////////////////////////////////////////////////////
 // Event Response
@@ -1000,19 +1060,25 @@ interface FirestoreEventResponseDoc {
   createdAt?: FirestoreTimestamp;
   updatedAt?: FirestoreTimestamp;
 }
-export const mapEventResponse = (eventResponse: FirestoreEventResponseDoc): object | undefined => {
+export const mapEventResponse = (eventResponse: FirestoreEventResponseDoc, clean = true): object | undefined => {
   if (!Boolean(eventResponse)) {
     return undefined;
   }
 
-  return cleanObjectOfBadWords({
+  const mappedEventResponse = {
     ...eventResponse,
     createdAt: eventResponse.createdAt?.toDate(),
     updatedAt: eventResponse.updatedAt?.toDate(),
     school: mapSubSchool(eventResponse.school),
     user: mapSubUser(eventResponse.user),
     event: mapSubEvent(eventResponse.event),
-  });
+  };
+
+  if (clean) {
+    return cleanObjectOfBadWords(mappedEventResponse);
+  }
+
+  return mappedEventResponse;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
