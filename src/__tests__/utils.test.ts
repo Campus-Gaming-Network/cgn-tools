@@ -7,6 +7,7 @@ import {
   sanitizePrivateProperties,
   cleanBadWords,
   cleanObjectOfBadWords,
+  move,
 } from '../index';
 
 const STATUSES: { [key: string]: string } = STUDENT_STATUS_OPTIONS.reduce(
@@ -166,5 +167,45 @@ describe('cleanObjectOfBadWords', () => {
     };
 
     expect(cleanObjectOfBadWords(withBadWords)).toEqual(withoutBadWords);
+  });
+});
+
+describe('move', () => {
+  const BASE_ARR = ['a', 'b', 'c'];
+
+  it('should return an array with items reordered a, b, c -> a, b, c', () => {
+    expect(move(BASE_ARR, 0, 0)).toEqual(BASE_ARR);
+  });
+
+  it('should return an array with items reordered a, b, c -> b, a, c', () => {
+    expect(move(BASE_ARR, 0, 1)).toEqual(['b', 'a', 'c']);
+  });
+
+  it('should return an array with items reordered a, b, c -> b, c, a', () => {
+    expect(move(BASE_ARR, 0, 2)).toEqual(['b', 'c', 'a']);
+  });
+
+  it('should return an array with items reordered a, b, c -> b, a, c', () => {
+    expect(move(BASE_ARR, 1, 0)).toEqual(['b', 'a', 'c']);
+  });
+
+  it('should return an array with items reordered a, b, c -> a, b, c', () => {
+    expect(move(BASE_ARR, 1, 1)).toEqual(BASE_ARR);
+  });
+
+  it('should return an array with items reordered a, b, c -> a, c, b', () => {
+    expect(move(BASE_ARR, 1, 2)).toEqual(['a', 'c', 'b']);
+  });
+
+  it('should return an array with items reordered a, b, c -> c, a, b', () => {
+    expect(move(BASE_ARR, 2, 0)).toEqual(['c', 'a', 'b']);
+  });
+
+  it('should return an array with items reordered a, b, c -> a, c, b', () => {
+    expect(move(BASE_ARR, 2, 1)).toEqual(['a', 'c', 'b']);
+  });
+
+  it('should return an array with items reordered a, b, c -> a, b, c', () => {
+    expect(move(BASE_ARR, 2, 2)).toEqual(BASE_ARR);
   });
 });

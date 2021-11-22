@@ -711,16 +711,16 @@ export const sanitizePrivateProperties = (obj: { [key: string]: any }): { [key: 
 
 export const cleanObjectOfBadWords = (obj: any): any => {
   for (const prop in obj) {
-    if (obj.hasOwnProperty(prop)) {
+    if (obj.hasOwnProperty(prop) && !prop.startsWith('_')) {
       const value = obj[prop];
 
       // Assuming a private property starts with an underscore.
       // In the case of Firebase ref properties, they do.
-      if (!prop.startsWith('_') && typeof value === 'string' && Boolean(value) && value.trim() !== '') {
+      if (typeof value === 'string' && Boolean(value) && value.trim() !== '') {
         obj[prop] = cleanBadWords(value);
       } else if (
-        ['meta', 'school', 'user', 'event', 'twitter', 'og'].includes(prop) ||
-        (typeof value === 'object' && !prop.startsWith('_'))
+        ['meta', 'school', 'user', 'event', 'twitter', 'og', 'team'].includes(prop) ||
+        typeof value === 'object'
       ) {
         cleanObjectOfBadWords(value);
       }
@@ -1083,6 +1083,32 @@ export const gameSchema = Joi.object({
     url: Joi.string().max(BASE_STRING_MAX_LENGTH).allow(''),
   }),
 });
+interface CreateUserForm {
+  firstName: string;
+  lastName: string;
+  school: string;
+  status: string;
+  major: string;
+  minor: string;
+  bio: string;
+  timezone: string;
+  hometown: string;
+  birthMonth: string;
+  birthDay: string;
+  birthYear: string;
+  website: string;
+  twitter: string;
+  twitch: string;
+  youtube: string;
+  skype: string;
+  discord: string;
+  battlenet: string;
+  steam: string;
+  xbox: string;
+  psn: string;
+  currentlyPlaying: FirestoreGame[];
+  favoriteGames: FirestoreGame[];
+}
 export const userSchema = Joi.object({
   id: idSchema,
   firstName: Joi.string().max(BASE_STRING_MAX_LENGTH).required(),
@@ -1276,10 +1302,12 @@ export const joinTeamSchema = Joi.object({
   teamId: Joi.string().trim().max(BASE_STRING_MAX_LENGTH).required(),
   password: Joi.string().trim().max(BASE_STRING_MAX_LENGTH).required(),
 });
-// export const validateCreateUser = (form: {}) => userSchema.validate(form, validateOptions);
-// export const validateEditUser = (form: {}) => userSchema.validate(form, validateOptions);
-export const validateCreateEvent = (form: CreateEventFormOnline | CreateEventFormOffline) => createEventSchema.validate(form, validateOptions);
-export const validateEditEvent = (form: CreateEventFormOnline | CreateEventFormOffline) => eventSchema.validate(form, validateOptions);
+export const validateCreateUser = (form: CreateUserForm) => userSchema.validate(form, validateOptions);
+export const validateEditUser = (form: CreateUserForm) => userSchema.validate(form, validateOptions);
+export const validateCreateEvent = (form: CreateEventFormOnline | CreateEventFormOffline) =>
+  createEventSchema.validate(form, validateOptions);
+export const validateEditEvent = (form: CreateEventFormOnline | CreateEventFormOffline) =>
+  eventSchema.validate(form, validateOptions);
 export const validateCreateTeam = (form: CreateTeamForm) => createTeamSchema.validate(form, validateOptions);
 export const validateEditTeam = (form: CreateTeamForm) => eventSchema.validate(form, validateOptions);
 export const validateJoinTeam = (form: JoinTeamForm) => joinTeamSchema.validate(form, validateOptions);
