@@ -28,7 +28,7 @@ enum FirebaseCollection {
   Tournaments = 'tournaments',
   Tournament_User = 'tournament-user',
 }
-interface FirebaseCollections {
+export interface FirebaseCollections {
   SCHOOLS: FirebaseCollection.Schools;
   USERS: FirebaseCollection.Users;
   EVENTS: FirebaseCollection.Events;
@@ -69,7 +69,7 @@ enum FirebaseCallable {
   Demote_Teammate = 'demoteTeammate',
   Create_Tournament = 'createTournament',
 }
-interface FirebaseCallables {
+export interface FirebaseCallables {
   SEARCH_GAMES: FirebaseCallable.Search_Games;
   SEARCH_SCHOOLS: FirebaseCallable.Search_Schools;
   REPORT_ENTITY: FirebaseCallable.Report_Entity;
@@ -99,7 +99,7 @@ enum FirebaseAuthAction {
   Verify_Email = 'verifyEmail',
   Reset_Password = 'resetPassword',
 }
-interface FirebaseAuthActions {
+export interface FirebaseAuthActions {
   VERIFY_EMAIL: FirebaseAuthAction.Verify_Email;
   RESET_PASSWORD: FirebaseAuthAction.Reset_Password;
 }
@@ -107,8 +107,8 @@ export const AUTH_ACTION: FirebaseAuthActions = {
   VERIFY_EMAIL: FirebaseAuthAction.Verify_Email,
   RESET_PASSWORD: FirebaseAuthAction.Reset_Password,
 };
-type DocumentPath = `${string}/{${string}Id}`;
-interface DocumentPaths {
+export type DocumentPath = `${string}/{${string}Id}`;
+export interface DocumentPaths {
   USER: DocumentPath;
   SCHOOL: DocumentPath;
   EVENT_RESPONSES: DocumentPath;
@@ -126,7 +126,32 @@ export const DOCUMENT_PATHS: DocumentPaths = {
   TOURNAMENTS: 'tournaments/{tournamentId}',
   TOURNAMENT_USER: 'tournament-user/{tournamentUserId}',
 };
-type FirestoreRef = string | object;
+export type FirestoreRef = string | object;
+export type QueryOperator = '<' | '<=' | '==' | '>' | '>=' | '!=' | 'array-contains' | 'array-contains-any' | 'in' | 'not-in';
+export interface QueryOperators {
+  LESS_THAN: QueryOperator;
+  LESS_THAN_EQUAL_TO: QueryOperator;
+  EQUAL_TO: QueryOperator;
+  GREATER_THAN: QueryOperator;
+  GREATER_THAN_EQUAL_TO: QueryOperator;
+  NOT_EQUAL_TO: QueryOperator;
+  ARRAY_CONTAINS: QueryOperator;
+  ARRAY_CONTAINS_ANY: QueryOperator;
+  IN: QueryOperator;
+  NOT_IN: QueryOperator;
+}
+export const QUERY_OPERATORS: QueryOperators = {
+  LESS_THAN: '<',
+  LESS_THAN_EQUAL_TO: '<=',
+  EQUAL_TO: '==',
+  GREATER_THAN: '>',
+  GREATER_THAN_EQUAL_TO: '>=',
+  NOT_EQUAL_TO: '!=',
+  ARRAY_CONTAINS: 'array-contains',
+  ARRAY_CONTAINS_ANY: 'array-contains-any',
+  IN: 'in',
+  NOT_IN: 'not-in',
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 // IGDB
@@ -136,7 +161,7 @@ export const IGDB_GAME_URL: string = 'https://www.igdb.com/games';
 ////////////////////////////////////////////////////////////////////////////////
 // School
 
-interface FirestoreSchoolDoc {
+export interface FirestoreSchoolDoc {
   id: string;
   name: string;
   handle: string;
@@ -153,7 +178,7 @@ interface FirestoreSchoolDoc {
   createdAt?: FirestoreTimestamp;
   updatedAt?: FirestoreTimestamp;
 }
-interface FirestoreSchoolSubDoc {
+export interface FirestoreSchoolSubDoc {
   id: string;
   name: string;
   ref: FirestoreRef;
@@ -251,7 +276,7 @@ export const mapSubSchool = (school: FirestoreSchoolSubDoc, clean = true): objec
 ////////////////////////////////////////////////////////////////////////////////
 // User
 
-interface FirestoreUserDoc {
+export interface FirestoreUserDoc {
   id: string;
   firstName: string;
   lastName: string;
@@ -278,7 +303,7 @@ interface FirestoreUserDoc {
   createdAt?: FirestoreTimestamp;
   updatedAt?: FirestoreTimestamp;
 }
-interface FirestoreUserSubDoc {
+export interface FirestoreUserSubDoc {
   id: string;
   firstName: string;
   lastName: string;
@@ -289,7 +314,7 @@ interface FirestoreUserSubDoc {
   createdAt?: FirestoreTimestamp;
   updatedAt?: FirestoreTimestamp;
 }
-interface StudentStatusOption {
+export interface StudentStatusOption {
   value: string;
   label: string;
 }
@@ -406,7 +431,7 @@ export const userHasAccounts = (user: { [key: string]: any }): boolean => {
 ////////////////////////////////////////////////////////////////////////////////
 // Team
 
-interface FirestoreTeamDoc {
+export interface FirestoreTeamDoc {
   id: string;
   name: string;
   shortName: string;
@@ -417,21 +442,21 @@ interface FirestoreTeamDoc {
   createdAt?: FirestoreTimestamp;
   updatedAt?: FirestoreTimestamp;
 }
-interface FirestoreTeamRoles {
+export interface FirestoreTeamRoles {
   leader: FirestoreTeamRole;
   officer?: FirestoreTeamRole;
 }
-interface FirestoreTeamRole {
+export interface FirestoreTeamRole {
   id: string;
   ref: FirestoreRef;
 }
-interface FirestoreTeamSubDoc {
+export interface FirestoreTeamSubDoc {
   id: string;
   name: string;
   shortName: string;
   ref: FirestoreRef;
 }
-interface TeamRoleTypes {
+export interface TeamRoleTypes {
   LEADER: string;
   OFFICER: string;
 }
@@ -524,7 +549,7 @@ export const mapSubTeam = (team: FirestoreTeamSubDoc, clean = true): object | un
 ////////////////////////////////////////////////////////////////////////////////
 // Teammate
 
-interface FirestoreTeammateDoc {
+export interface FirestoreTeammateDoc {
   user: FirestoreUserSubDoc;
   team: FirestoreTeamSubDoc;
   createdAt?: FirestoreTimestamp;
@@ -553,7 +578,7 @@ export const mapTeammate = (teammate: FirestoreTeammateDoc, clean = true): objec
 ////////////////////////////////////////////////////////////////////////////////
 // Role
 
-interface FirestoreRoleDoc {
+export interface FirestoreRoleDoc {
   id: string;
   name: string;
   permissions: [];
@@ -562,7 +587,7 @@ interface FirestoreRoleDoc {
 ////////////////////////////////////////////////////////////////////////////////
 // User Role
 
-interface FirestoreUserRoleDoc {
+export interface FirestoreUserRoleDoc {
   role: {
     id: string;
     ref: FirestoreRef;
@@ -580,7 +605,7 @@ interface FirestoreUserRoleDoc {
 ////////////////////////////////////////////////////////////////////////////////
 // Team Auth
 
-interface FirestoreTeamAuthDoc {
+export interface FirestoreTeamAuthDoc {
   joinHash: string;
   team: {
     id: string;
@@ -593,7 +618,7 @@ interface FirestoreTeamAuthDoc {
 ////////////////////////////////////////////////////////////////////////////////
 // Game Query
 
-interface FirestoreGameQueryDoc {
+export interface FirestoreGameQueryDoc {
   games: FirestoreGame[];
   queries: number;
   createdAt?: FirestoreTimestamp;
@@ -603,7 +628,7 @@ interface FirestoreGameQueryDoc {
 ////////////////////////////////////////////////////////////////////////////////
 // Tournament
 
-interface FirestoreTournamentDoc {
+export interface FirestoreTournamentDoc {
   id: string;
   createdAt?: FirestoreTimestamp;
   updatedAt?: FirestoreTimestamp;
@@ -640,7 +665,7 @@ export const LOCAL_STORAGE = {
 };
 export const CGN_TWITTER_HANDLE: string = '@CampusGamingNet';
 export const SITE_NAME: string = 'Campus Gaming Network';
-interface RedirectHome {
+export interface RedirectHome {
   redirect: {
     permanent: boolean;
     destination: string;
@@ -652,7 +677,7 @@ export const REDIRECT_HOME: RedirectHome = {
     destination: '/',
   },
 };
-interface NotFound {
+export interface NotFound {
   notFound: boolean;
 }
 export const NOT_FOUND: NotFound = { notFound: true };
@@ -675,7 +700,7 @@ export const DEFAULT_EVENTS_SKELETON_LIST_PAGE_SIZE: number = 3;
 export const GOOGLE_MAPS_QUERY_URL: string = 'https://www.google.com/maps/search/?api=1&query=';
 export const MAX_DEFAULT_STRING_LENGTH: number = 255;
 export const MIN_PASSWORD_LENGTH: number = 6;
-interface Gravatar {
+export interface Gravatar {
   URL: string;
   RA: string;
   DEFAULT: string;
@@ -685,7 +710,7 @@ export const GRAVATAR: Gravatar = {
   RA: 'pg',
   DEFAULT: 'retro',
 };
-interface SocialAccount {
+export interface SocialAccount {
   label: string;
   icon: string;
   url?: string;
@@ -840,7 +865,7 @@ export const NANO_ID_LENGTH: number = 10;
 
 export const DASHED_DATE: string = 'MMMM-d-y';
 export const DASHED_DATE_TIME: string = 'MMMM-d-y HH:mm';
-interface Timezone {
+export interface Timezone {
   value: string;
   name: string;
 }
@@ -871,7 +896,7 @@ export const hasEnded = (endDateTime: FirestoreTimestamp): boolean => {
 
   return DateTime.local() > DateTime.fromISO(endDateTime.toDate().toISOString());
 };
-interface DateTimeConfig {
+export interface DateTimeConfig {
   firestore: FirestoreTimestamp;
   base: Date;
   iso: string;
@@ -920,7 +945,7 @@ export const getClosestTimeByN = (hour: number, minutes: number, n: number): str
 ////////////////////////////////////////////////////////////////////////////////
 // Event
 
-interface FirestoreEventDoc {
+export interface FirestoreEventDoc {
   id: string;
   name: string;
   creator: FirestoreUserSubDoc;
@@ -940,7 +965,7 @@ interface FirestoreEventDoc {
   createdAt?: FirestoreTimestamp;
   updatedAt?: FirestoreTimestamp;
 }
-interface FirestoreEventSubDoc {
+export interface FirestoreEventSubDoc {
   id: string;
   name: string;
   ref: FirestoreRef;
@@ -956,7 +981,7 @@ interface FirestoreEventSubDoc {
   createdAt?: FirestoreTimestamp;
   updatedAt?: FirestoreTimestamp;
 }
-interface FirestoreGame {
+export interface FirestoreGame {
   id: number;
   cover: {
     id: number;
@@ -1044,7 +1069,7 @@ enum EventResponse {
   Yes = 'YES',
   No = 'NO',
 }
-interface EventResponses {
+export interface EventResponses {
   YES: EventResponse.Yes;
   NO: EventResponse.No;
 }
@@ -1052,7 +1077,7 @@ export const EVENT_RESPONSES: EventResponses = {
   YES: EventResponse.Yes,
   NO: EventResponse.No,
 };
-interface FirestoreEventResponseDoc {
+export interface FirestoreEventResponseDoc {
   response: EventResponse;
   user: FirestoreUserSubDoc;
   event: FirestoreEventSubDoc;
@@ -1149,7 +1174,7 @@ export const gameSchema = Joi.object({
     url: Joi.string().max(BASE_STRING_MAX_LENGTH).allow(''),
   }),
 });
-interface CreateUserForm {
+export interface CreateUserForm {
   firstName: string;
   lastName: string;
   school: string;
@@ -1267,7 +1292,7 @@ export const teammateSchema = Joi.object({
   createdAt: createdAtSchema,
   updatedAt: updatedAtSchema,
 });
-interface SignUpForm {
+export interface SignUpForm {
   firstName: string;
   lastName: string;
   email: string;
@@ -1283,7 +1308,7 @@ export const signUpSchema = Joi.object({
   school: Joi.string().max(BASE_STRING_MAX_LENGTH).required(),
   status: userStatusSchema.required(),
 });
-interface LogInForm {
+export interface LogInForm {
   email: string;
   password: string;
 }
@@ -1291,19 +1316,19 @@ export const logInSchema = Joi.object({
   email: emailSchema.required(),
   password: passwordSchema.required(),
 });
-interface ForgotPasswordForm {
+export interface ForgotPasswordForm {
   email: string;
 }
 export const forgotPasswordSchema = Joi.object({
   email: emailSchema.required(),
 });
-interface PasswordResetForm {
+export interface PasswordResetForm {
   password: string;
 }
 export const passwordResetSchema = Joi.object({
   password: passwordSchema.required(),
 });
-interface CreateEventForm {
+export interface CreateEventForm {
   name: string;
   description: string;
   game: FirestoreGame;
@@ -1316,12 +1341,12 @@ interface CreateEventForm {
   endYear: string;
   endTime: string;
 }
-interface CreateEventFormOnline extends CreateEventForm {
+export interface CreateEventFormOnline extends CreateEventForm {
   isOnlineEvent: true;
   placeId?: string | null;
   location?: string | null;
 }
-interface CreateEventFormOffline extends CreateEventForm {
+export interface CreateEventFormOffline extends CreateEventForm {
   isOnlineEvent: false;
   placeId: string;
   location: string;
@@ -1348,7 +1373,7 @@ export const createEventSchema = Joi.object({
     .max(BASE_STRING_MAX_LENGTH)
     .when('isOnlineEvent', { is: true, then: Joi.allow('', null).optional() }),
 }).options({ presence: 'required' });
-interface CreateTeamForm {
+export interface CreateTeamForm {
   name: string;
   shortName: string | null;
   website: string | null;
@@ -1360,7 +1385,7 @@ export const createTeamSchema = Joi.object({
   website: Joi.string().trim().max(BASE_STRING_MAX_LENGTH).allow(''),
   description: Joi.string().trim().max(MAX_DESCRIPTION_LENGTH).allow(''),
 });
-interface JoinTeamForm {
+export interface JoinTeamForm {
   teamId: string;
   password: string;
 }
