@@ -127,7 +127,17 @@ export const DOCUMENT_PATHS: DocumentPaths = {
   TOURNAMENT_USER: 'tournament-user/{tournamentUserId}',
 };
 export type FirestoreRef = string | object;
-export type QueryOperator = '<' | '<=' | '==' | '>' | '>=' | '!=' | 'array-contains' | 'array-contains-any' | 'in' | 'not-in';
+export type QueryOperator =
+  | '<'
+  | '<='
+  | '=='
+  | '>'
+  | '>='
+  | '!='
+  | 'array-contains'
+  | 'array-contains-any'
+  | 'in'
+  | 'not-in';
 export interface QueryOperators {
   LESS_THAN: QueryOperator;
   LESS_THAN_EQUAL_TO: QueryOperator;
