@@ -1,6 +1,6 @@
 {
   "name": "@campus-gaming-network/tools",
-  "version": "2.0.98",
+  "version": "2.0.99",
   "description": "A number of utilities and constants used across Campus Gaming Network applications.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
