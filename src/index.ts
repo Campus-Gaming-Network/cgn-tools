@@ -889,6 +889,11 @@ export const hasStarted = (startDateTime: FirestoreTimestamp, endDateTime: Fires
 
   return Interval.fromDateTimes(startDateTime.toDate(), endDateTime.toDate()).contains(DateTime.local());
 };
+export const firestoreTimestampToJsDate = (firestoreTimestamp: FirestoreTimestamp) => {
+  // @ts-ignore
+  const seconds = firestoreTimestamp._seconds || firestoreTimestamp.seconds;
+  return new Date(seconds * 1000);
+};
 export const hasEnded = (endDateTime: FirestoreTimestamp): boolean => {
   if (!Boolean(endDateTime)) {
     return false;
