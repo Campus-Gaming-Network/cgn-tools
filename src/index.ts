@@ -5,7 +5,7 @@ import startCase from 'lodash.startcase';
 import md5 from 'md5';
 import Joi from 'joi';
 import Filter from 'bad-words';
-import { DateTime, Interval } from 'luxon';
+import { DateTime, Interval, Info } from 'luxon';
 import { Timestamp as FirestoreTimestamp, GeoPoint as FirestoreGeoPoint } from '@firebase/firestore-types';
 import 'intl';
 import 'intl/locale-data/jsonp/en';
@@ -889,6 +889,8 @@ export const TIMEZONES: Timezone[] = [
   { value: 'America/Anchorage', name: 'Anchorage (Alaska)' },
   { value: 'Pacific/Honolulu', name: 'Honolulu (Hawaii)' },
 ];
+export const getCurrentYear = (): number => DateTime.local().year;
+export const getMonths = (): string[] => Info.months();
 export const MAX_DAYS_IN_MONTH: number = 31;
 export const DEFAULT_TIME_INCREMENT: number = 15;
 export const DAYS = range(1, MAX_DAYS_IN_MONTH + 1).map((day: number) => day.toString());
@@ -940,7 +942,31 @@ export const buildDateTime = (dateTime: FirestoreTimestamp): DateTimeConfig | un
     relative: DateTime.fromISO(_dateTimeISO).toRelativeCalendar(),
   };
 };
+export const getYears = (
+  min = 2020,
+  max = 2020,
+  options = { reverse: false }
+): string[] => {
+  let years: string[] = [];
 
+  if (min < 0 || max < 0) {
+    return years;
+  }
+
+  years = [...range(min, max).map((year) => year.toString())];
+
+  if (options.reverse) {
+    years = [...years.reverse()];
+  }
+
+  return years;
+};
+export const getLast100Years = (): string[] => getYears(getCurrentYear() - 100, getCurrentYear() + 1, {
+  reverse: true,
+});
+export const getNext5Years = (): string[] => getYears(getCurrentYear(), getCurrentYear() + 5, {
+  reverse: true,
+});
 export const getClosestTimeByN = (hour: number, minutes: number, n: number): string => {
   let _hour = hour;
   let _minutes: string | number = Math.ceil(minutes / 10) * 10;
