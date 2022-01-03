@@ -1407,6 +1407,12 @@ export const joinTeamSchema = Joi.object({
   teamId: Joi.string().trim().max(BASE_STRING_MAX_LENGTH).required(),
   password: Joi.string().trim().max(BASE_STRING_MAX_LENGTH).required(),
 });
+export interface DeleteAccountForm {
+  deleteConfirmation: string;
+}
+export const deleteAccountSchema = Joi.object({
+  deleteConfirmation: Joi.string().valid(DELETE_USER_VERIFICATION_TEXT).required(),
+});
 export const validateCreateUser = (form: CreateUserForm) => userSchema.validate(form, validateOptions);
 export const validateEditUser = (form: CreateUserForm) => userSchema.validate(form, validateOptions);
 export const validateCreateEvent = (form: CreateEventFormOnline | CreateEventFormOffline) =>
@@ -1421,3 +1427,4 @@ export const validateLogIn = (form: LogInForm) => logInSchema.validate(form, val
 export const validateForgotPassword = (form: ForgotPasswordForm) =>
   forgotPasswordSchema.validate(form, validateOptions);
 export const validatePasswordReset = (form: PasswordResetForm) => passwordResetSchema.validate(form, validateOptions);
+export const validateDeleteAccount = (form: DeleteAccountForm) => deleteAccountSchema.validate(form, validateOptions);
