@@ -942,11 +942,7 @@ export const buildDateTime = (dateTime: FirestoreTimestamp): DateTimeConfig | un
     relative: DateTime.fromISO(_dateTimeISO).toRelativeCalendar(),
   };
 };
-export const getYears = (
-  min = 2020,
-  max = 2020,
-  options = { reverse: false }
-): string[] => {
+export const getYears = (min = 2020, max = 2020, options = { reverse: false }): string[] => {
   let years: string[] = [];
 
   if (min < 0 || max < 0) {
@@ -961,12 +957,14 @@ export const getYears = (
 
   return years;
 };
-export const getLast100Years = (): string[] => getYears(getCurrentYear() - 100, getCurrentYear() + 1, {
-  reverse: true,
-});
-export const getNext5Years = (): string[] => getYears(getCurrentYear(), getCurrentYear() + 5, {
-  reverse: true,
-});
+export const getLast100Years = (): string[] =>
+  getYears(getCurrentYear() - 100, getCurrentYear() + 1, {
+    reverse: true,
+  });
+export const getNext5Years = (): string[] =>
+  getYears(getCurrentYear(), getCurrentYear() + 5, {
+    reverse: true,
+  });
 export const getClosestTimeByN = (hour: number, minutes: number, n: number): string => {
   let _hour = hour;
   let _minutes: string | number = Math.ceil(minutes / 10) * 10;
