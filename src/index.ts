@@ -1008,6 +1008,7 @@ export interface FirestoreGame {
 export const EVENT_EMPTY_USERS_TEXT: string = 'This event currently has no attending users.';
 export const EVENT_EMPTY_LOCATION_TEXT: string = 'To be determined';
 export const MAX_DESCRIPTION_LENGTH: number = 5000;
+export const MAX_REPORT_REASON_LENGTH: number = 5000;
 export const getEventUrl = (eventId: string): string => {
   return `${PRODUCTION_URL}/event/${eventId}`;
 };
@@ -1413,6 +1414,12 @@ export interface DeleteAccountForm {
 export const deleteAccountSchema = Joi.object({
   deleteConfirmation: Joi.string().valid(DELETE_USER_VERIFICATION_TEXT).required(),
 });
+export interface ReportEntityForm {
+  reason: string;
+}
+export const reportEntitySchema = Joi.object({
+  reason: Joi.string().trim().max(MAX_REPORT_REASON_LENGTH).required(),
+});
 export const validateCreateUser = (form: CreateUserForm) => userSchema.validate(form, validateOptions);
 export const validateEditUser = (form: CreateUserForm) => userSchema.validate(form, validateOptions);
 export const validateCreateEvent = (form: CreateEventFormOnline | CreateEventFormOffline) =>
@@ -1428,3 +1435,4 @@ export const validateForgotPassword = (form: ForgotPasswordForm) =>
   forgotPasswordSchema.validate(form, validateOptions);
 export const validatePasswordReset = (form: PasswordResetForm) => passwordResetSchema.validate(form, validateOptions);
 export const validateDeleteAccount = (form: DeleteAccountForm) => deleteAccountSchema.validate(form, validateOptions);
+export const validateReportEntity = (form: ReportEntityForm) => reportEntitySchema.validate(form, validateOptions);
