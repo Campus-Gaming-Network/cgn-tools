@@ -1137,7 +1137,6 @@ export const classNames = (_classNames: string[] = []): string => {
 
 export const validateOptions = {
   abortEarly: false,
-  debug: process.env.NODE_ENV !== 'production',
 };
 export const BASE_STRING_MAX_LENGTH = 255;
 export const idSchema = Joi.string().max(BASE_STRING_MAX_LENGTH).required();
